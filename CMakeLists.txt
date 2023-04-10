@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.24.1)
 
 # This is the name of your plugin
 # This cannot have spaces (but PRODUCT_NAME can)
-set(PROJECT_NAME "Pamplejuce")
+set(PROJECT_NAME "Arpeggiator")
 
 # Set the plugin formats you'll be building here.
 # Valid formats: AAX Unity VST AU AUv3 Standalone
@@ -48,15 +48,15 @@ juce_add_plugin("${PROJECT_NAME}"
     # VERSION ...                               # Set this if the plugin version is different to the project version
     # ICON_BIG ...                              # ICON_* arguments specify a path to an image file to use as an icon for the Standalone
     # ICON_SMALL ...
-    COMPANY_NAME Pamplejuce
-    BUNDLE_ID com.pamplejuce.pamplejuce
+    COMPANY_NAME Arpeggiator
+    BUNDLE_ID com.arpeggiator.arpeggiator
     # IS_SYNTH TRUE/FALSE                       # Is this a synth or an effect?
     # NEEDS_MIDI_INPUT TRUE/FALSE               # Does the plugin need midi input?
     # NEEDS_MIDI_OUTPUT TRUE/FALSE              # Does the plugin need midi output?
     # IS_MIDI_EFFECT TRUE/FALSE                 # Is this plugin a MIDI effect?
     # EDITOR_WANTS_KEYBOARD_FOCUS TRUE/FALSE    # Does the editor need keyboard focus?
     COPY_PLUGIN_AFTER_BUILD TRUE # On MacOS, plugin will be copied to /Users/you/Library/Audio/Plug-Ins/
-    PLUGIN_MANUFACTURER_CODE Pamp               # This has to be one uppercase, rest lower for AU formats
+    PLUGIN_MANUFACTURER_CODE Arpg               # This has to be one uppercase, rest lower for AU formats
     PLUGIN_CODE P001                            # A unique four-character plugin id with at least one upper-case character
     FORMATS "${FORMATS}"
     PRODUCT_NAME "${PROJECT_NAME}")        # The name of the final executable, which can differ from the target name
@@ -79,7 +79,7 @@ set_target_properties("${PROJECT_NAME}" PROPERTIES FOLDER "")
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/Source PREFIX "" FILES ${SourceFiles})
 
 # Setup our binary data as a target
-juce_add_binary_data(Assets SOURCES pamplejuce.png)
+juce_add_binary_data(Assets SOURCES arpeggiator.png)
 
 # Required for Linux happiness:
 # See https://forum.juce.com/t/loading-pytorch-model-using-binarydata/39997/2
@@ -131,7 +131,7 @@ if(WIN32) # Can't use MSVC here, as it won't catch Clang on Windows
     if(IPP_FOUND)
         target_link_libraries("${PROJECT_NAME}" PUBLIC IPP::ipps IPP::ippcore IPP::ippi IPP::ippcv)
         message("IPP LIBRARIES FOUND")
-        target_compile_definitions("${PROJECT_NAME}" PUBLIC PAMPLEJUCE_IPP=1)
+        target_compile_definitions("${PROJECT_NAME}" PUBLIC ARPEGGIATOR_IPP=1)
     else()
         message("IPP LIBRARIES *NOT* FOUND")
     endif()
