@@ -1,191 +1,111 @@
-# 3.24.1 is bundled in Visual Studio 2022 v17.4
-# 3.24.1 is also bundled in CLion as of 2023
-cmake_minimum_required(VERSION 3.24.1)
+# Example Audio Plugin CMakeLists.txt
 
-# This is the name of your plugin
-# This cannot have spaces (but PRODUCT_NAME can)
-set(PROJECT_NAME "Arpeggiator")
+# To get started on a new plugin, copy this entire folder (containing this file and C++ sources) to
+# a convenient location, and then start making modifications.
 
-# Set the plugin formats you'll be building here.
-# Valid formats: AAX Unity VST AU AUv3 Standalone
-set(FORMATS AU VST3 AUv3)
+# The first line of any CMake project should be a call to `cmake_minimum_required`, which checks
+# that the installed CMake will be able to understand the following CMakeLists, and ensures that
+# CMake's behaviour is compatible with the named version. This is a standard CMake command, so more
+# information can be found in the CMake docs.
 
-# Reads in VERSION file and sticks in it CURRENT_VERSION variable
-# Be sure the file has no newlines
-file(STRINGS VERSION CURRENT_VERSION)
+cmake_minimum_required(VERSION 3.15)
 
-# For simplicity, the name of the project is also the name of the target
-project(${PROJECT_NAME} VERSION ${CURRENT_VERSION})
+# The top-level CMakeLists.txt file for a project must contain a literal, direct call to the
+# `project()` command. `project()` sets up some helpful variables that describe source/binary
+# directories, and the current project version. This is a standard CMake command.
 
-# By default we don't want Xcode schemes to be made for modules, etc
-set(CMAKE_XCODE_GENERATE_SCHEME OFF)
+project(AUDIO_PLUGIN_EXAMPLE VERSION 0.0.1)
 
-# Building universal binaries on macOS increases build time
-# This is set on CI but not during local dev
-if ((DEFINED ENV{CI}) AND (CMAKE_BUILD_TYPE STREQUAL "Release"))
-  message("Building for Apple Silicon and x86_64")
-  set(CMAKE_OSX_ARCHITECTURES arm64 x86_64)
-endif ()
+# If you've installed JUCE somehow (via a package manager, or directly using the CMake install
+# target), you'll need to tell this project that it depends on the installed copy of JUCE. If you've
+# included JUCE directly in your source tree (perhaps as a submodule), you'll need to tell CMake to
+# include that subdirectory as part of the build.
 
-set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Support macOS down to High Sierra")
+# find_package(JUCE CONFIG REQUIRED)        # If you've installed JUCE to your system
+# or
+  add_subdirectory("/Applications/JUCE" JUCE)                    # If you've put JUCE in a subdirectory called JUCE
 
-# Adds all the module sources so they appear correctly in the IDE
-# Must be set before JUCE is added as a sub-dir (or any targets are made)
-# https://github.com/juce-framework/JUCE/commit/6b1b4cf7f6b1008db44411f2c8887d71a3348889
-set_property(GLOBAL PROPERTY USE_FOLDERS YES)
+# If you are building a VST2 or AAX plugin, CMake needs to be told where to find these SDKs on your
+# system. This setup should be done before calling `juce_add_plugin`.
 
-# Create a /Modules directory in the IDE with the JUCE Module code
-option(JUCE_ENABLE_MODULE_SOURCE_GROUPS "Show all module sources in IDE projects" ON)
+# juce_set_vst2_sdk_path(...)
+# juce_set_aax_sdk_path(...)
 
-# JUCE is setup as a submodule in the /JUCE folder
-# Locally, you'll need to run `git submodule update --init --recursive` once
-# and `git submodule update --remote --merge` to keep it up to date
-# On Github Actions, it's managed by actions/checkout
-add_subdirectory(JUCE)
+# `juce_add_plugin` adds a static library target with the name passed as the first argument
+# (AudioPluginExample here). This target is a normal CMake target, but has a lot of extra properties set
+# up by default. As well as this shared code static library, this function adds targets for each of
+# the formats specified by the FORMATS arguments. This function accepts many optional arguments.
+# Check the readme at `docs/CMake API.md` in the JUCE repo for the full list.
 
-# Check the readme at `docs/CMake API.md` in the JUCE repo for full config
-juce_add_plugin("${PROJECT_NAME}"
+juce_add_plugin(AudioPluginExample
     # VERSION ...                               # Set this if the plugin version is different to the project version
     # ICON_BIG ...                              # ICON_* arguments specify a path to an image file to use as an icon for the Standalone
     # ICON_SMALL ...
-    COMPANY_NAME Arpeggiator
-    BUNDLE_ID com.arpeggiator.arpeggiator
+     COMPANY_NAME HP                          # Specify the name of the plugin's author
     # IS_SYNTH TRUE/FALSE                       # Is this a synth or an effect?
     # NEEDS_MIDI_INPUT TRUE/FALSE               # Does the plugin need midi input?
     # NEEDS_MIDI_OUTPUT TRUE/FALSE              # Does the plugin need midi output?
     # IS_MIDI_EFFECT TRUE/FALSE                 # Is this plugin a MIDI effect?
     # EDITOR_WANTS_KEYBOARD_FOCUS TRUE/FALSE    # Does the editor need keyboard focus?
-    COPY_PLUGIN_AFTER_BUILD TRUE # On MacOS, plugin will be copied to /Users/you/Library/Audio/Plug-Ins/
-    PLUGIN_MANUFACTURER_CODE Arpg               # This has to be one uppercase, rest lower for AU formats
-    PLUGIN_CODE P001                            # A unique four-character plugin id with at least one upper-case character
-    FORMATS "${FORMATS}"
-    PRODUCT_NAME "${PROJECT_NAME}")        # The name of the final executable, which can differ from the target name
+    # COPY_PLUGIN_AFTER_BUILD TRUE/FALSE        # Should the plugin be installed to a default location after building?
+    PLUGIN_MANUFACTURER_CODE Juce               # A four-character manufacturer id with at least one upper-case character
+    PLUGIN_CODE Dem0                            # A unique four-character plugin id with exactly one upper-case character
+                                                # GarageBand 10.3 requires the first letter to be upper-case, and the remaining letters to be lower-case
+    FORMATS AU VST3 Standalone                  # The formats to build. Other valid formats are: AAX Unity VST AU AUv3
+    PRODUCT_NAME "Audio Plugin Example")        # The name of the final executable, which can differ from the target name
 
-# C++20, please
-target_compile_features("${PROJECT_NAME}" PRIVATE cxx_std_20)
+# `juce_generate_juce_header` will create a JuceHeader.h for a given target, which will be generated
+# into your build tree. This should be included with `#include <JuceHeader.h>`. The include path for
+# this header will be automatically added to the target. The main function of the JuceHeader is to
+# include all your JUCE module headers; if you're happy to include module headers directly, you
+# probably don't need to call this.
 
-# Manually list all .h and .cpp files for the plugin
-set(SourceFiles
-    Source/PluginEditor.h
-    Source/PluginProcessor.h
-    Source/PluginEditor.cpp
-    Source/PluginProcessor.cpp)
-target_sources("${PROJECT_NAME}" PRIVATE ${SourceFiles})
+# juce_generate_juce_header(AudioPluginExample)
 
-# No, we don't want our source buried in extra nested folders
-set_target_properties("${PROJECT_NAME}" PROPERTIES FOLDER "")
+# `target_sources` adds source files to a target. We pass the target that needs the sources as the
+# first argument, then a visibility parameter for the sources which should normally be PRIVATE.
+# Finally, we supply a list of source files that will be built into the target. This is a standard
+# CMake command.
 
-# The Xcode source tree should uhhh, still look like the source tree, yo
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/Source PREFIX "" FILES ${SourceFiles})
-
-# Setup our binary data as a target
-juce_add_binary_data(Assets SOURCES arpeggiator.png)
-
-# Required for Linux happiness:
-# See https://forum.juce.com/t/loading-pytorch-model-using-binarydata/39997/2
-set_target_properties(Assets PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-
-# Clean up folder organization on Xcode.
-# It tucks the Plugin varieties into a "Targets" folder and generate an Xcode Scheme manually
-# Xcode scheme generation is turned off globally to limit noise from other targets
-# The non-hacky way of doing this is via the global PREDEFINED_TARGETS_FOLDER property
-# However that doesn't seem to be working in Xcode
-# Not all plugin types (au, vst) available on each build type (win, macos, linux)
-foreach(target ${FORMATS} "All")
-    if(TARGET ${PROJECT_NAME}_${target})
-        set_target_properties(${PROJECT_NAME}_${target} PROPERTIES
-            # Tuck the actual plugin targets into a folder where they won't bother us
-            FOLDER "Targets"
-
-            # MacOS only: Sets the default executable that Xcode will open on build
-            # For this exact path to to work, manually build the AudioPluginHost.xcodeproj in the JUCE subdir
-            XCODE_SCHEME_EXECUTABLE "${CMAKE_CURRENT_SOURCE_DIR}/JUCE/extras/AudioPluginHost/Builds/MacOSX/build/Debug/AudioPluginHost.app"
-
-            # Let us build the target in Xcode
-            XCODE_GENERATE_SCHEME ON)
-    endif()
-endforeach()
-set_target_properties(Assets PROPERTIES FOLDER "Targets")
-
-
-target_compile_definitions("${PROJECT_NAME}"
-    PUBLIC
-    # JUCE_WEB_BROWSER and JUCE_USE_CURL would be on by default, but you might not need them.
-    JUCE_WEB_BROWSER=0  # If you remove this, add `NEEDS_WEB_BROWSER TRUE` to the `juce_add_plugin` call
-    JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_plugin` call
-    JUCE_VST3_CAN_REPLACE_VST2=0)
-
-target_link_libraries("${PROJECT_NAME}"
+target_sources(AudioPluginExample
     PRIVATE
-    Assets
+        PluginEditor.cpp
+        PluginProcessor.cpp)
+
+# `target_compile_definitions` adds some preprocessor definitions to our target. In a Projucer
+# project, these might be passed in the 'Preprocessor Definitions' field. JUCE modules also make use
+# of compile definitions to switch certain features on/off, so if there's a particular feature you
+# need that's not on by default, check the module header for the correct flag to set here. These
+# definitions will be visible both to your code, and also the JUCE module code, so for new
+# definitions, pick unique names that are unlikely to collide! This is a standard CMake command.
+
+target_compile_definitions(AudioPluginExample
     PUBLIC
-    juce::juce_audio_utils
-    juce::juce_audio_processors
-    juce::juce_recommended_config_flags
-    juce::juce_recommended_lto_flags
-    juce::juce_recommended_warning_flags)
+        # JUCE_WEB_BROWSER and JUCE_USE_CURL would be on by default, but you might not need them.
+        JUCE_WEB_BROWSER=0  # If you remove this, add `NEEDS_WEB_BROWSER TRUE` to the `juce_add_plugin` call
+        JUCE_USE_CURL=0     # If you remove this, add `NEEDS_CURL TRUE` to the `juce_add_plugin` call
+        JUCE_VST3_CAN_REPLACE_VST2=0)
 
-# When present, use Intel IPP for performance on Windows
-if(WIN32) # Can't use MSVC here, as it won't catch Clang on Windows
-    find_package(IPP)
-    if(IPP_FOUND)
-        target_link_libraries("${PROJECT_NAME}" PUBLIC IPP::ipps IPP::ippcore IPP::ippi IPP::ippcv)
-        message("IPP LIBRARIES FOUND")
-        target_compile_definitions("${PROJECT_NAME}" PUBLIC ARPEGGIATOR_IPP=1)
-    else()
-        message("IPP LIBRARIES *NOT* FOUND")
-    endif()
-endif()
+# If your target needs extra binary assets, you can add them here. The first argument is the name of
+# a new static library target that will include all the binary resources. There is an optional
+# `NAMESPACE` argument that can specify the namespace of the generated binary data class. Finally,
+# the SOURCES argument should be followed by a list of source files that should be built into the
+# static library. These source files can be of any kind (wav data, images, fonts, icons etc.).
+# Conversion to binary-data will happen when your target is built.
 
-# Required for ctest (which is just easier for cross-platform CI)
-# include(CTest) does this too, but adds tons of targets we don't want
-# See: https://github.com/catchorg/Catch2/issues/2026
-# You also could forgo ctest and call ./Tests directly from the build dir
-enable_testing()
+# juce_add_binary_data(AudioPluginData SOURCES ...)
 
-# "GLOBS ARE BAD" is brittle and silly dev UX, sorry CMake!
-# CONFIGURE_DEPENDS / Clion's CMake integration makes globbing absolutely fine
-file(GLOB_RECURSE TestFiles CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/Tests/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/Tests/*.h")
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/Tests PREFIX "" FILES ${TestFiles})
+# `target_link_libraries` links libraries and JUCE modules to other libraries or executables. Here,
+# we're linking our executable target to the `juce::juce_audio_utils` module. Inter-module
+# dependencies are resolved automatically, so `juce_core`, `juce_events` and so on will also be
+# linked automatically. If we'd generated a binary data target above, we would need to link to it
+# here too. This is a standard CMake command.
 
-# Use Catch2 v3 on the devel branch
-Include(FetchContent)
-FetchContent_Declare(
-    Catch2
-    GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-    GIT_PROGRESS TRUE
-    GIT_SHALLOW TRUE
-    GIT_TAG v3.3.2)
-FetchContent_MakeAvailable(Catch2) # find_package equivalent
-
-# Setup the test executable, again C++ 20 please
-add_executable(Tests ${TestFiles})
-target_compile_features(Tests PRIVATE cxx_std_20)
-
-# Our test executable also wants to know about our plugin code...
-target_include_directories(Tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Source)
-target_link_libraries(Tests PRIVATE Catch2::Catch2WithMain "${PROJECT_NAME}")
-
-# We can't link again to the shared juce target without ODL violations
-# However, we can steal its include dirs and compile definitions to use in tests!
-target_compile_definitions(Tests INTERFACE $<TARGET_PROPERTY:${PROJECT_NAME},INTERFACE_COMPILE_DEFINITIONS>)
-target_include_directories(Tests INTERFACE $<TARGET_PROPERTY:${PROJECT_NAME},INCLUDE_DIRECTORIES>)
-
-# Make an Xcode Scheme for the test executable so we can run tests in the IDE
-set_target_properties(Tests PROPERTIES XCODE_GENERATE_SCHEME ON)
-
-# Organize the test source in the Tests/ folder in the IDE
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/Tests PREFIX "" FILES ${TestFiles})
-
-# Load and use the .cmake file provided by Catch2
-# https://github.com/catchorg/Catch2/blob/devel/docs/cmake-integration.md
-# We have to manually provide the source directory here for now
-include(${Catch2_SOURCE_DIR}/extras/Catch.cmake)
-catch_discover_tests(Tests)
-
-# Color our warnings and errors
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-   add_compile_options (-fdiagnostics-color=always)
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-   add_compile_options (-fcolor-diagnostics)
-endif ()
+target_link_libraries(AudioPluginExample
+    PRIVATE
+        # AudioPluginData           # If we'd created a binary data target, we'd link to it here
+        juce::juce_audio_utils
+    PUBLIC
+        juce::juce_recommended_config_flags
+        juce::juce_recommended_lto_flags
+        juce::juce_recommended_warning_flags)
