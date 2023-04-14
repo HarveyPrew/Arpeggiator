@@ -1,5 +1,5 @@
-#include "ArpeggiatorProcessor.h"
-#include "ArpeggiatorEditor.h"
+#include "PluginProcessor.h"
+#include "PluginEditor.h"
 
 //==============================================================================
 AudioPluginAudioProcessor::AudioPluginAudioProcessor()
