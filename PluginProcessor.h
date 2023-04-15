@@ -6,6 +6,7 @@
 class AudioPluginAudioProcessor  : public juce::AudioProcessor
 {
 public:
+    float noteOnVel; // Variable that holds data from slider
     //==============================================================================
     AudioPluginAudioProcessor();
     ~AudioPluginAudioProcessor() override;
