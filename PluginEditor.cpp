@@ -9,6 +9,15 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     setSize (200, 200);
+    midiVolume.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    midiVolume.setRange(0.0, 127.0, 1.0);
+    midiVolume.setTextBoxStyle(juce::Slider::TextBoxRight, false, 80, 20);
+    midiVolume.setPopupDisplayEnabled(true, false, this);
+    midiVolume.setTextValueSuffix("MIDI Velocity");
+    midiVolume.setValue(1.0);
+
+    // add the child component midiVolume to the parent component (the Editor here)
+    addAndMakeVisible (&midiVolume);
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
