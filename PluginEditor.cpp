@@ -7,16 +7,16 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 {
 
     setSize (400, 400);
-    midiVolume.setSliderStyle(juce::Slider::LinearVertical);
-    midiVolume.setRange(0.0, 127.0, 1.0);
-    midiVolume.setTextBoxStyle(juce::Slider::TextBoxRight, false, 80, 20);
-    midiVolume.setPopupDisplayEnabled(true, false, this);
-    midiVolume.setTextValueSuffix("MIDI Velocity");
-    midiVolume.setValue(1.0);
-    midiVolume.addListener(this);
+    speed.setSliderStyle(juce::Slider::LinearVertical);
+    speed.setRange(0.0, 1.0, 0.1);
+    speed.setTextBoxStyle(juce::Slider::TextBoxRight, false, 80, 20);
+    speed.setPopupDisplayEnabled(true, false, this);
+    speed.setTextValueSuffix(" Speed");
+    speed.setValue(1.0);
+    speed.addListener(this);
 
-    // add the child component midiVolume to the parent component (the Editor here)
-    addAndMakeVisible (&midiVolume);
+    // add the child component speed to the parent component (the Editor here)
+    addAndMakeVisible (&speed);
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
@@ -35,17 +35,17 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
     // Set the font size and draw text to the screen
     g.setFont(15.0f);
 
-    g.drawFittedText ("Midi Volume", 0, 0, getWidth(), 30, juce::Justification::centred, 1);
+    g.drawFittedText ("Arpeggiator", 0, 0, getWidth(), 30, juce::Justification::centred, 1);
 }
 
 void AudioPluginAudioProcessorEditor::resized()
 {
     // Position and Size of the slider with arguments (x, y, width, height)
-    midiVolume.setBounds (0, 0, 180, 180);
+    speed.setBounds (0, 0, 180, 180);
 }
 
 
 void AudioPluginAudioProcessorEditor::sliderValueChanged (juce::Slider* slider)
 {
-    processorRef.noteOnVel = midiVolume.getValue();
+    processorRef.noteOnVel = speed.getValue();
 }
