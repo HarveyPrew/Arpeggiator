@@ -47,5 +47,5 @@ void AudioPluginAudioProcessorEditor::resized()
 
 void AudioPluginAudioProcessorEditor::sliderValueChanged (juce::Slider* slider)
 {
-    processorRef.noteOnVel = speed.getValue();
+    processorRef.newSpeedVal = speed.getValue();
 }

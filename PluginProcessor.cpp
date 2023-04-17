@@ -86,9 +86,11 @@ void AudioPluginAudioProcessor::changeProgramName (int index, const juce::String
 //==============================================================================
 void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
-    juce::ignoreUnused (sampleRate, samplesPerBlock);
+    notes.clear();                          // [1]
+    currentNote = 0;                        // [2]
+    lastNoteValue = -1;                     // [3]
+    time = 0;                               // [4]
+    rate = static_cast<float> (sampleRate); // [5]
 }
 
 void AudioPluginAudioProcessor::releaseResources()
@@ -124,25 +126,43 @@ bool AudioPluginAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
 void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                                               juce::MidiBuffer& midiMessages)
 {
-    buffer.clear(); // Clears possible remaining Audio Data
-    juce::MidiBuffer processedMidi; // Creates object processedMidi of class "MidiBuffer"
 
-    for (const auto metadata : midiMessages)
+    // however we use the buffer to get timing information
+    auto numSamples = buffer.getNumSamples();                                                       // [7]
+
+    // get note duration
+    auto noteDuration = static_cast<int> (std::ceil (rate * 0.25f * (0.1f + (1.0f - ((juce::uint8) newSpeedVal)))));   // [8]
+
+    for (const auto metadata : midiMessages)                                                                // [9]
     {
-        auto message = metadata.getMessage();
-        const auto time = metadata.samplePosition;
+        const auto msg = metadata.getMessage();
 
-        if (message.isNoteOn())
+        if      (msg.isNoteOn())  notes.add (msg.getNoteNumber());
+        else if (msg.isNoteOff()) notes.removeValue (msg.getNoteNumber());
+    }
+
+    midiMessages.clear();
+
+    if ((time + numSamples) >= noteDuration)                                                        // [11]
+    {
+        auto offset = juce::jmax (0, juce::jmin ((int) (noteDuration - time), numSamples - 1));     // [12]
+
+        if (lastNoteValue > 0)                                                                      // [13]
         {
-            // Updates to new velocity value
-            message = juce::MidiMessage::noteOn(message.getChannel(), message.getNoteNumber(), (juce::uint8) noteOnVel);
+            midiMessages.addEvent (juce::MidiMessage::noteOff (1, lastNoteValue), offset);
+            lastNoteValue = -1;
         }
 
-        // Adds new midi message to processed midi
-        processedMidi.addEvent(message, time);
+        if (notes.size() > 0)                                                                       // [14]
+        {
+            currentNote = (currentNote + 1) % notes.size();
+            lastNoteValue = notes[currentNote];
+            midiMessages.addEvent (juce::MidiMessage::noteOn  (1, lastNoteValue, (juce::uint8) 127), offset);
+        }
+
     }
-    //swaps new midi message to what its in the midi buffer
-    midiMessages.swapWith(processedMidi);
+
+    time = (time + numSamples) % noteDuration;                                                      // [15]
 }
 
 //==============================================================================

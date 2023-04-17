@@ -6,7 +6,7 @@
 class AudioPluginAudioProcessor  : public juce::AudioProcessor
 {
 public:
-    float noteOnVel; // Variable that holds data from slider
+    float newSpeedVal; // Variable that holds data from slider
     //==============================================================================
     AudioPluginAudioProcessor();
     ~AudioPluginAudioProcessor() override;
@@ -44,6 +44,10 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
 private:
+    int currentNote, lastNoteValue;
+    int time;
+    float rate;
+    juce::SortedSet<int> notes;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 };
