@@ -131,7 +131,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     auto numSamples = buffer.getNumSamples();                                                       // [7]
 
     // get note duration
-    auto noteDuration = static_cast<int> (std::ceil (rate * 0.25f * (0.1f + (1.0f - ((juce::uint8) newSpeedVal)))));   // [8]
+    auto noteDuration = static_cast<int> (std::ceil (rate * 0.25f * (0.1f + (1.0f - (newSpeedVal)))));   // [8]
 
     for (const auto metadata : midiMessages)                                                                // [9]
     {

@@ -8,11 +8,11 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 
     setSize (400, 400);
     speed.setSliderStyle(juce::Slider::LinearVertical);
-    speed.setRange(0.0, 1.0, 0.1);
+    speed.setRange(0.0, 1.0, 0.01);
     speed.setTextBoxStyle(juce::Slider::TextBoxRight, false, 80, 20);
     speed.setPopupDisplayEnabled(true, false, this);
     speed.setTextValueSuffix(" Speed");
-    speed.setValue(1.0);
+    speed.setValue(0.5);
     speed.addListener(this);
 
     // add the child component speed to the parent component (the Editor here)
