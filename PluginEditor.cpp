@@ -7,16 +7,16 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 {
 
     setSize (400, 400);
-    speed.setSliderStyle(juce::Slider::LinearVertical);
-    speed.setRange(0.0, 1.0, 0.01);
-    speed.setTextBoxStyle(juce::Slider::TextBoxRight, false, 80, 20);
-    speed.setPopupDisplayEnabled(true, false, this);
-    speed.setTextValueSuffix(" Speed");
-    speed.setValue(0.5);
-    speed.addListener(this);
+    tempo.setSliderStyle(juce::Slider::LinearVertical);
+    tempo.setRange(0.0, 1.0, 0.01);
+    tempo.setTextBoxStyle(juce::Slider::TextBoxRight, false, 80, 20);
+    tempo.setPopupDisplayEnabled(true, false, this);
+    tempo.setTextValueSuffix(" BPM");
+    tempo.setValue(0.5);
+    tempo.addListener(this);
 
-    // add the child component speed to the parent component (the Editor here)
-    addAndMakeVisible (&speed);
+    // add the child component tempo to the parent component (the Editor here)
+    addAndMakeVisible (&tempo);
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
@@ -41,11 +41,11 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 void AudioPluginAudioProcessorEditor::resized()
 {
     // Position and Size of the slider with arguments (x, y, width, height)
-    speed.setBounds (0, 0, 180, 180);
+    tempo.setBounds (0, 0, 180, 180);
 }
 
 
 void AudioPluginAudioProcessorEditor::sliderValueChanged (juce::Slider* slider)
 {
-    processorRef.newSpeedVal = speed.getValue();
+    processorRef.newSpeedVal = tempo.getValue();
 }

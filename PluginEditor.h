@@ -17,7 +17,7 @@ private:
     void sliderValueChanged (juce::Slider* slider) override; // Add the callback function
     AudioPluginAudioProcessor& processorRef;
 
-    juce::Slider speed;
+    juce::Slider tempo;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
 };
