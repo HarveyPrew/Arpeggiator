@@ -6,7 +6,7 @@
 class AudioPluginAudioProcessor  : public juce::AudioProcessor
 {
 public:
-    float newSpeedVal; // Variable that holds data from slider
+    float newTempoVal; // Variable that holds data from slider
     //==============================================================================
     AudioPluginAudioProcessor();
     ~AudioPluginAudioProcessor() override;
@@ -43,7 +43,10 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    juce::AudioProcessorValueTreeState apvts;
+
 private:
+    juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
     int currentNote, lastNoteValue;
     int time;
     float rate;
