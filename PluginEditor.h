@@ -3,8 +3,7 @@
 #include "PluginProcessor.h"
 
 //==============================================================================
-class AudioPluginAudioProcessorEditor  : public juce::AudioProcessorEditor, private
-    juce::Slider::Listener // Add Listener class (1)
+class AudioPluginAudioProcessorEditor  : public juce::AudioProcessorEditor
 {
 public:
     AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor&);
@@ -15,7 +14,6 @@ public:
 
 private:
     juce::Slider tempo;
-    void sliderValueChanged (juce::Slider* slider) override; // Add the callback function
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> tempoSliderAttachment;
     AudioPluginAudioProcessor& processorRef;
 

@@ -13,7 +13,6 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     tempo.setTextBoxStyle(juce::Slider::TextBoxRight, false, 80, 20); // Dimensions of text box showing value
     tempo.setPopupDisplayEnabled(true, false, this); //BPM shown as popup
     tempo.setTextValueSuffix(" BPM"); // Showing units alongside with value
-    //lettempo.addListener(this);
 
     // add the child component tempo to the parent component (the Editor here)
     addAndMakeVisible (tempo);
@@ -49,7 +48,3 @@ void AudioPluginAudioProcessorEditor::resized()
     tempo.setBounds (0, 0, 180, 180);
 }
 
-void AudioPluginAudioProcessorEditor::sliderValueChanged (juce::Slider* slider)
-{
-    processorRef.newTempoVal = tempo.getValue();
-}
