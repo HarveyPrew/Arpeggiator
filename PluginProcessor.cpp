@@ -130,8 +130,11 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // however we use the buffer to get timing information
     auto numSamples = buffer.getNumSamples();                                                       // [7]
 
+    auto t = apvts.getRawParameterValue("BPM");
+    auto tempo = t->load();
+
     // get note duration
-    auto noteDuration = static_cast<int> (std::ceil (rate/(newTempoVal/60)));   // [8]
+    auto noteDuration = static_cast<int> (std::ceil (rate/(tempo/60)));   // [8]
 
     for (const auto metadata : midiMessages)                                                                // [9]
     {
