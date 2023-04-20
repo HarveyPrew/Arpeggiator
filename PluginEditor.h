@@ -14,10 +14,12 @@ public:
     void resized() override;
 
 private:
+    juce::Slider tempo;
     void sliderValueChanged (juce::Slider* slider) override; // Add the callback function
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> tempoSliderAttachment;
     AudioPluginAudioProcessor& processorRef;
 
-    juce::Slider tempo;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
 };

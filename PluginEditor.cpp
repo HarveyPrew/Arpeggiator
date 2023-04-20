@@ -6,19 +6,22 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     : AudioProcessorEditor (&p), processorRef (p)
 {
 
-    setSize (400, 400); // Pixel Dimensions of plugin (400x400 pixels(
+
 
     // ----------------------------------- Tempo -----------------------------------
     tempo.setSliderStyle(juce::Slider::LinearVertical); // A vertical slider is selected
-    tempo.setRange(20.0, 200.0, 1); // Range of tempo parameter
     tempo.setTextBoxStyle(juce::Slider::TextBoxRight, false, 80, 20); // Dimensions of text box showing value
     tempo.setPopupDisplayEnabled(true, false, this); //BPM shown as popup
     tempo.setTextValueSuffix(" BPM"); // Showing units alongside with value
-    tempo.setValue(120); // Inital value set to "120 BPM"
-    tempo.addListener(this); // Inital value set to "120 BPM"
+    tempo.addListener(this);
 
     // add the child component tempo to the parent component (the Editor here)
-    addAndMakeVisible (&tempo);
+    addAndMakeVisible (tempo);
+
+    tempoSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, "BPM", tempo);
+
+    setSize (400, 400); // Pixel Dimensions of plugin (400x400 pixels)
+
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
@@ -45,7 +48,6 @@ void AudioPluginAudioProcessorEditor::resized()
     // Position and Size of the slider with arguments (x, y, width, height)
     tempo.setBounds (0, 0, 180, 180);
 }
-
 
 void AudioPluginAudioProcessorEditor::sliderValueChanged (juce::Slider* slider)
 {
