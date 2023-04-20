@@ -13,7 +13,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     tempo.setTextBoxStyle(juce::Slider::TextBoxRight, false, 80, 20); // Dimensions of text box showing value
     tempo.setPopupDisplayEnabled(true, false, this); //BPM shown as popup
     tempo.setTextValueSuffix(" BPM"); // Showing units alongside with value
-    tempo.addListener(this);
+    //lettempo.addListener(this);
 
     // add the child component tempo to the parent component (the Editor here)
     addAndMakeVisible (tempo);
