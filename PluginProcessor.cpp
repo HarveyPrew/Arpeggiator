@@ -202,11 +202,14 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
     return new AudioPluginAudioProcessor();
 }
 
+// Declaring function that makes parameters
 juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::createParameters()
 {
+    // Storing parameters as a vector
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
 
     params.push_back(std::make_unique<juce::AudioParameterInt>("BPM", "Bpm", 20, 200, 120));
+    params.push_back(std::make_unique<juce::AudioParameterChoice>("MODE", "Mode", juce::StringArray{"Up", "Down", "Up-Down"}, 0));
 
     return{ params.begin(), params.end() };
 }

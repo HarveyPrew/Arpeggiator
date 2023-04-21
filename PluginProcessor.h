@@ -42,9 +42,12 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    //An object of APVTS is made to store the parameters of the plugin
     juce::AudioProcessorValueTreeState apvts;
 
 private:
+
+    // Defining function that makes parameters.
     juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
     int currentNote, lastNoteValue;
     int time;

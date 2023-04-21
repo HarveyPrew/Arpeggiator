@@ -14,6 +14,7 @@ public:
 
 private:
     juce::Slider tempo;
+
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> tempoSliderAttachment;
     AudioPluginAudioProcessor& processorRef;
 
