@@ -19,6 +19,13 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 
     tempoSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, "BPM", tempo);
 
+    addAndMakeVisible (mode);
+    mode.addItem("Up", 1);
+    mode.addItem("Down", 2);
+    mode.addItem("Up-Down", 3);
+    mode.setJustificationType(juce::Justification::centred);
+    modeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(processorRef.apvts, "MODE", mode);
+
     setSize (400, 400); // Pixel Dimensions of plugin (400x400 pixels)
 
 }
@@ -46,5 +53,7 @@ void AudioPluginAudioProcessorEditor::resized()
 {
     // Position and Size of the slider with arguments (x, y, width, height)
     tempo.setBounds (0, 0, 180, 180);
+
+    mode.setBounds(30, 30, 180, 180);
 }
 

@@ -14,8 +14,10 @@ public:
 
 private:
     juce::Slider tempo;
+    juce::ComboBox mode;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> tempoSliderAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> modeAttachment;
     AudioPluginAudioProcessor& processorRef;
 
 
