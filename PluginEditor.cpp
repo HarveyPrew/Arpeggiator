@@ -21,9 +21,9 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     tempoSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, "BPM", tempo);
 
     addAndMakeVisible (mode);
-    mode.addItem("Up", 1);
-    mode.addItem("Down", 2);
-    mode.addItem("Up-Down", 3);
+    //mode.addItem("Up", 1);
+    //mode.addItem("Down", 2);
+    //mode.addItem("Up-Down", 3);
     mode.setJustificationType(juce::Justification::centred);
     modeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(processorRef.apvts, "MODE", mode);
 
