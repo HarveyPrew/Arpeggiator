@@ -14,6 +14,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
     tempo.setPopupDisplayEnabled(true, false, this); //BPM shown as popup
     tempo.setTextValueSuffix(" BPM"); // Showing units alongside with value
 
+
     // add the child component tempo to the parent component (the Editor here)
     addAndMakeVisible (tempo);
 
@@ -52,8 +53,8 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 void AudioPluginAudioProcessorEditor::resized()
 {
     // Position and Size of the slider with arguments (x, y, width, height)
-    tempo.setBounds (0, 0, 180, 180);
+    tempo.setBounds (0, 160, 180, 180);
 
-    mode.setBounds(30, 30, 180, 180);
+    mode.setBounds(290, 160, 80, 50);
 }
 

@@ -126,6 +126,8 @@ bool AudioPluginAudioProcessor::isBusesLayoutSupported (const BusesLayout& layou
 void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                                               juce::MidiBuffer& midiMessages)
 {
+    // no audio i/o so buffer will have zeros
+    jassert (buffer.getNumChannels() == 0);
 
     // however we use the buffer to get timing information
     auto numSamples = buffer.getNumSamples();                                                       // [7]
