@@ -206,7 +206,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
 
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("BPM", "Bpm", 20, 200, 120));
+    params.push_back(std::make_unique<juce::AudioParameterInt>("BPM", "Bpm", 20, 200, 120));
 
     return{ params.begin(), params.end() };
 }
