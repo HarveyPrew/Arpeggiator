@@ -160,7 +160,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 
         if (notes.size() > 0)                                                                       // [14]
         {
-            currentNote = (notes.size() - 1) % notes.size();
+            currentNote = (currentNote - 1 + notes.size()) % notes.size();
             lastNoteValue = notes[currentNote];
             midiMessages.addEvent (juce::MidiMessage::noteOn  (1, lastNoteValue, (juce::uint8) 127), offset);
         }
