@@ -165,10 +165,13 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         // Adding note to sorted set if it's a note on message, deleting it if it's a note off.
         if      (msg.isNoteOn())  notes.add (msg.getNoteNumber());
         else if (msg.isNoteOff()) notes.removeValue (msg.getNoteNumber());
+
+
     }
 
     // Empty midi buffer to prepare the sorted set -> midi buffer transition.
     midiMessages.clear();
+
 
     // Argument is met when it's time to change notes and edit the midi buffer
     if ((time + numSamples) >= noteDuration)
