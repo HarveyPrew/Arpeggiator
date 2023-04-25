@@ -86,11 +86,20 @@ void AudioPluginAudioProcessor::changeProgramName (int index, const juce::String
 //==============================================================================
 void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int)
 {
-    notes.clear();                          // [1]
-    currentNote = 0;                        // [2]
-    lastNoteValue = -1;                     // [3]
-    time = 0;                               // [4]
-    rate = static_cast<float> (sampleRate); // [5]
+    // Emptying notes from sorted set.
+    notes.clear();
+
+    // Initially has current Note set to first instance of sorted set.
+    currentNote = -1;
+
+    // Holds information to be able to stop the notes
+    lastNoteValue = -1;
+
+    // Time used to keep track of note duration with respect to buffer size and sample rate.
+    time = 0;
+
+    // Converting double to a float.
+    rate = static_cast<float> (sampleRate);
 }
 
 void AudioPluginAudioProcessor::releaseResources()
@@ -132,24 +141,39 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // however we use the buffer to get timing information
     auto numSamples = buffer.getNumSamples();                                                       // [7]
 
+
+    // Retriving the address that has the tempo value
     auto t = apvts.getRawParameterValue("BPM");
+
+    // Retriving the tempo value
     auto tempo = t->load();
 
-    // get note duration
-    auto noteDuration = static_cast<int> (std::ceil (rate/(tempo/60)));   // [8]
+    // Retriving the address that has the mode value
+    auto m = apvts.getRawParameterValue("MODE");
 
+    // Retriving the mode value
+    auto mode = m->load();
+
+    // Converting from float to int
+    auto noteDuration = static_cast<int> (std::ceil (rate/(tempo/60)));
+
+    // arguments iterate through each midi message in midiMessages
     for (const auto metadata : midiMessages)                                                                // [9]
     {
         const auto msg = metadata.getMessage();
 
+        // Adding note to sorted set if it's a note on message, deleting it if it's a note off.
         if      (msg.isNoteOn())  notes.add (msg.getNoteNumber());
         else if (msg.isNoteOff()) notes.removeValue (msg.getNoteNumber());
     }
 
+    // Empty midi buffer to prepare the sorted set -> midi buffer transition.
     midiMessages.clear();
 
-    if ((time + numSamples) >= noteDuration)                                                        // [11]
+    // Argument is met when it's time to change notes and edit the midi buffer
+    if ((time + numSamples) >= noteDuration)
     {
+
         auto offset = juce::jmax (0, juce::jmin ((int) (noteDuration - time), numSamples - 1));     // [12]
 
         if (lastNoteValue > 0)                                                                      // [13]
@@ -160,14 +184,15 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 
         if (notes.size() > 0)                                                                       // [14]
         {
-            currentNote = (currentNote - 1 + notes.size()) % notes.size();
+
+            currentNote = (currentNote + 1) % notes.size();
             lastNoteValue = notes[currentNote];
             midiMessages.addEvent (juce::MidiMessage::noteOn  (1, lastNoteValue, (juce::uint8) 127), offset);
         }
-
     }
 
-    time = (time + numSamples) % noteDuration;                                                      // [15]
+    // Once time + numSamples = noteDuration, time is set back to 0.
+    time = (time + numSamples) % noteDuration;
 }
 
 //==============================================================================
