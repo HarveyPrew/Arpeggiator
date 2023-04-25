@@ -96,7 +96,7 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int)
     lastNoteValue = -1;
 
     // Time used to keep track of note duration with respect to buffer size and sample rate.
-    time = 0;
+    time = -1;
 
     // Converting double to a float.
     rate = static_cast<float> (sampleRate);
@@ -169,24 +169,23 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 
     }
 
+    auto offset = juce::jmax (0, juce::jmin ((int) (noteDuration - time), numSamples - 1)); // [12]
     // Empty midi buffer to prepare the sorted set -> midi buffer transition.
     midiMessages.clear();
-    if (notes.size() > 0)
+    if ((notes.size() > 0))
     {
-        if (time == 0)
+        if (time == -1)
         {
-            if (notes.size() > 0) // [14]
-            {
-                currentNote = (currentNote + 1) % notes.size();
-                lastNoteValue = notes[currentNote];
-                midiMessages.addEvent (juce::MidiMessage::noteOn (1, lastNoteValue, (juce::uint8) 127), 0);
-            }
-            time = (time + numSamples) % noteDuration;
+            currentNote = (currentNote + 1) % notes.size();
+            lastNoteValue = notes[currentNote];
+            midiMessages.addEvent (juce::MidiMessage::noteOn (1, lastNoteValue, (juce::uint8) 127), 0);
+
+            time = numSamples;
         }
-        // Argument is met when it's time to change notes and edit the midi buffer
+        // Argument is met when it's time to change notes and edit the midi buffer. IF WE ARE JUST ABOUT TO WRAP
         if ((time + numSamples) >= noteDuration)
         {
-            auto offset = juce::jmax (0, juce::jmin ((int) (noteDuration - time), numSamples - 1)); // [12]
+
 
             if (lastNoteValue > 0) // [13]
             {
@@ -194,22 +193,26 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                 lastNoteValue = -1;
             }
 
-            if (notes.size() > 0) // [14]
-            {
-                currentNote = (currentNote + 1) % notes.size();
-                lastNoteValue = notes[currentNote];
-                midiMessages.addEvent (juce::MidiMessage::noteOn (1, lastNoteValue, (juce::uint8) 127), offset);
-            }
+
+            currentNote = (currentNote + 1) % notes.size();
+            lastNoteValue = notes[currentNote];
+            midiMessages.addEvent (juce::MidiMessage::noteOn (1, lastNoteValue, (juce::uint8) 127), offset);
+
             time = (time + numSamples) % noteDuration;
         }
-
-        if (0 < (time + numSamples) < noteDuration)
+        else if (0 < (time + numSamples) < noteDuration)
         {
             time = (time + numSamples) % noteDuration;
         }
     }
     // Once time + numSamples = noteDuration, time is set back to 0.
 
+    if ((notes.size() == 0) && (lastNoteValue != -1))
+        {
+            midiMessages.addEvent (juce::MidiMessage::noteOff (1, lastNoteValue), offset);
+            lastNoteValue = -1;
+            time = 0;
+        }
 }
 
 //==============================================================================
