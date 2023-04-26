@@ -139,40 +139,49 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     jassert (buffer.getNumChannels() == 0);
 
     // however we use the buffer to get timing information
-    auto numSamples = buffer.getNumSamples();                                                       // [7]
+    auto numSamples = buffer.getNumSamples();
 
-
-    // Retriving the address that has the tempo value
+    // TODO: Convert to function.
+    // Retrieving the address that has the tempo value
     auto t = apvts.getRawParameterValue("BPM");
 
-    // Retriving the tempo value
+    // Retrieving the tempo value
     auto tempo = t->load();
 
-    // Retriving the address that has the mode value
+    // TODO: Convert to function.
+    // Retrieving the address that has the mode value
     auto m = apvts.getRawParameterValue("MODE");
 
-    // Retriving the mode value
+    // Retrieving the mode value
     auto mode = m->load();
 
     // Converting from float to int
     auto noteDuration = static_cast<int> (std::ceil (rate/(tempo/60)));
 
-    // arguments iterate through each midi message in midiMessages
-    for (const auto metadata : midiMessages)                                                                // [9]
+    // Iterate through each midi message metadata in the midiMessages buffer
+    for (const auto metadata : midiMessages)
     {
         const auto msg = metadata.getMessage();
 
-        // Adding note to sorted set if it's a note on message, deleting it if it's a note off.
-        if      (msg.isNoteOn())  notes.add (msg.getNoteNumber());
-        else if (msg.isNoteOff()) notes.removeValue (msg.getNoteNumber());
-
-
+        // Adding note to sorted set if it's a note-on message, deleting it if it's a note-off.
+        if (msg.isNoteOn())
+        {
+            notes.add (msg.getNoteNumber());
+        }
+        else if (msg.isNoteOff())
+        {
+            notes.removeValue (msg.getNoteNumber());
+        }
     }
 
-    auto offset = juce::jmax (0, juce::jmin ((int) (noteDuration - time), numSamples - 1)); // [12]
+    // TODO : Calculate offset function.
+    auto offset = juce::jmax (0, juce::jmin ((int) (noteDuration - time), numSamples - 1));
+
     // Empty midi buffer to prepare the sorted set -> midi buffer transition.
     midiMessages.clear();
-    if ((notes.size() > 0))
+
+    // TODO : Break if blocks into functions.
+    if (notes.size() > 0)
     {
         if (time == -1)
         {
@@ -180,24 +189,26 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
             lastNoteValue = notes[currentNote];
             midiMessages.addEvent (juce::MidiMessage::noteOn (1, lastNoteValue, (juce::uint8) 127), 0);
 
+            //TODO: See if it works without this.
             time = numSamples;
         }
+        // TODO: Simplify comment.
         // Argument is met when it's time to change notes and edit the midi buffer. IF WE ARE JUST ABOUT TO WRAP
+        // TODO: If conditions turn into functions.
         if ((time + numSamples) >= noteDuration)
         {
-
-
-            if (lastNoteValue > 0) // [13]
+            if (lastNoteValue > 0)
             {
                 midiMessages.addEvent (juce::MidiMessage::noteOff (1, lastNoteValue), offset);
                 lastNoteValue = -1;
             }
 
-
             currentNote = (currentNote + 1) % notes.size();
             lastNoteValue = notes[currentNote];
             midiMessages.addEvent (juce::MidiMessage::noteOn (1, lastNoteValue, (juce::uint8) 127), offset);
 
+            // Once time + numSamples = noteDuration, time is set back to 0.
+            // TODO: Make this into own function.
             time = (time + numSamples) % noteDuration;
         }
         else if (0 < (time + numSamples) < noteDuration)
@@ -205,8 +216,8 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
             time = (time + numSamples) % noteDuration;
         }
     }
-    // Once time + numSamples = noteDuration, time is set back to 0.
 
+    // TODO: Make to function. Whole block could be a function
     if ((notes.size() == 0) && (lastNoteValue != -1))
         {
             midiMessages.addEvent (juce::MidiMessage::noteOff (1, lastNoteValue), offset);
