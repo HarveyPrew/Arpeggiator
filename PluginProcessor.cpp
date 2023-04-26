@@ -211,7 +211,8 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         {
             midiMessages.addEvent (juce::MidiMessage::noteOff (1, lastNoteValue), offset);
             lastNoteValue = -1;
-            time = 0;
+            time = -1;
+            currentNote = -1;
         }
 }
 
