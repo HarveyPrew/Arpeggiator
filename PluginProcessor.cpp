@@ -225,6 +225,8 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
             time = -1;
             currentNote = -1;
         }
+
+    // TODO: TEST IN XCODE
 }
 
 //==============================================================================
