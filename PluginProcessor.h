@@ -55,6 +55,7 @@ private:
     float rate;
     juce::SortedSet<int> notes;
     float pointerToFloat (juce::String parameterID);
+    int calculateOffSet(int time, int NumSamples, int NoteDuration);
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 };

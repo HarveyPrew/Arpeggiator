@@ -165,7 +165,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     }
 
     // TODO : Calculate offset function.
-    auto offset = juce::jmax (0, juce::jmin ((int) (noteDuration - time), numSamples - 1));
+    auto offset = calculateOffSet(time, numSamples, noteDuration);
 
     // Empty midi buffer to prepare the sorted set -> midi buffer transition.
     midiMessages.clear();
@@ -251,6 +251,12 @@ float AudioPluginAudioProcessor::pointerToFloat(juce::String parameterID)
     auto atomicFloat =apvts.getRawParameterValue(parameterID);
     auto floatValue = atomicFloat -> load();
     return floatValue;
+}
+
+int AudioPluginAudioProcessor::calculateOffSet(int time, int numSamples, int noteDuration)
+{
+    auto offset = juce::jmax (0, juce::jmin ((int) (noteDuration - time), numSamples - 1));
+    return offset;
 }
 
 //==============================================================================
