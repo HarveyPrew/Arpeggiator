@@ -141,12 +141,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // however we use the buffer to get timing information
     auto numSamples = buffer.getNumSamples();
 
-    // TODO: Convert to function.
-    // Retrieving the address that has the tempo value
-    auto t = apvts.getRawParameterValue("BPM");
-
-    // Retrieving the tempo value
-    auto tempo = t->load();
+    auto tempo = pointerToFloat("BPM");
 
     // TODO: Convert to function.
     // Retrieving the address that has the mode value
@@ -254,6 +249,13 @@ void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeI
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
     juce::ignoreUnused (data, sizeInBytes);
+}
+
+float AudioPluginAudioProcessor::pointerToFloat(juce::String parameterID)
+{
+    auto atomicFloat =apvts.getRawParameterValue(parameterID);
+    auto floatValue = atomicFloat -> load();
+    return floatValue;
 }
 
 //==============================================================================

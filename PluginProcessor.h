@@ -42,6 +42,7 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+
     //An object of APVTS is made to store the parameters of the plugin
     juce::AudioProcessorValueTreeState apvts;
 
@@ -53,6 +54,7 @@ private:
     int time;
     float rate;
     juce::SortedSet<int> notes;
+    float pointerToFloat (juce::String parameterID);
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 };
