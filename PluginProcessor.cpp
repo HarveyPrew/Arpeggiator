@@ -143,12 +143,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 
     auto tempo = pointerToFloat("BPM");
 
-    // TODO: Convert to function.
-    // Retrieving the address that has the mode value
-    auto m = apvts.getRawParameterValue("MODE");
-
-    // Retrieving the mode value
-    auto mode = m->load();
+    auto mode = pointerToFloat("MODE");
 
     // Converting from float to int
     auto noteDuration = static_cast<int> (std::ceil (rate/(tempo/60)));
