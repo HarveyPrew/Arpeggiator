@@ -255,7 +255,8 @@ float AudioPluginAudioProcessor::pointerToFloat(juce::String parameterID)
 
 int AudioPluginAudioProcessor::calculateOffSet(int time, int numSamples, int noteDuration)
 {
-    auto offset = juce::jmax (0, juce::jmin ((int) (noteDuration - time), numSamples - 1));
+    auto offsetEquation = std::min(noteDuration - time, numSamples -1);
+    auto offset = std::max(0, offsetEquation);
     return offset;
 }
 
