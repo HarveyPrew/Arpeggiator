@@ -196,12 +196,11 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
             midiMessages.addEvent (juce::MidiMessage::noteOn (1, lastNoteValue, (juce::uint8) 127), offset);
 
             // Once time + numSamples = noteDuration, time is set back to 0.
-            // TODO: Make this into own function.
-            time = (time + numSamples) % noteDuration;
+            time = timeUpdater(time, numSamples, noteDuration);
         }
         else if (0 < (time + numSamples) < noteDuration)
         {
-            time = (time + numSamples) % noteDuration;
+            time = timeUpdater(time, numSamples, noteDuration);
         }
     }
 
@@ -258,9 +257,15 @@ int AudioPluginAudioProcessor::calculateOffSet(int time, int numSamples, int not
     return offset;
 }
 
-bool AudioPluginAudioProcessor::notesAreHeld (juce::SortedSet<int> notes)
+bool AudioPluginAudioProcessor:: notesAreHeld (juce::SortedSet<int> notes)
 {
     return notes.size() > 0;
+}
+
+int AudioPluginAudioProcessor::timeUpdater(int time, int numSamples, int noteDuration)
+{
+    time = (time + numSamples) % noteDuration;
+    return time;
 }
 
 //==============================================================================
