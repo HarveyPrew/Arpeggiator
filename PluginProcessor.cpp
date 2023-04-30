@@ -164,14 +164,14 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         }
     }
 
-    // TODO : Calculate offset function.
+
     auto offset = calculateOffSet(time, numSamples, noteDuration);
 
     // Empty midi buffer to prepare the sorted set -> midi buffer transition.
     midiMessages.clear();
 
     // TODO : Break if blocks into functions.
-    if (notes.size() > 0)
+    if (notesAreHeld(notes))
     {
         if (time == -1)
         {
@@ -258,6 +258,11 @@ int AudioPluginAudioProcessor::calculateOffSet(int time, int numSamples, int not
     auto offsetEquation = std::min(noteDuration - time, numSamples -1);
     auto offset = std::max(0, offsetEquation);
     return offset;
+}
+
+bool AudioPluginAudioProcessor::notesAreHeld (juce::SortedSet<int> notes)
+{
+    return notes.size() > 0;
 }
 
 //==============================================================================
