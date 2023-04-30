@@ -59,6 +59,7 @@ private:
     int timeUpdater(int time, int numSamples, int noteDuration);
     bool notesAreHeld (juce::SortedSet<int> notes);
     bool timeForNoteChange(int time, int numSamples, int noteDuration);
+    void noteChanger(int currentNote, juce::SortedSet<int> notes, int lastNoteValue, juce::MidiBuffer& midiMessages, int offset);
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 
