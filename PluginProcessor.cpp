@@ -170,7 +170,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // Empty midi buffer to prepare the sorted set -> midi buffer transition.
     midiMessages.clear();
 
-    // TODO : Break if blocks into functions.
+
     if (notesAreHeld(notes))
     {
         if (time == -1)
@@ -178,9 +178,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
             currentNote = (currentNote + 1) % notes.size();
             lastNoteValue = notes[currentNote];
             midiMessages.addEvent (juce::MidiMessage::noteOn (1, lastNoteValue, (juce::uint8) 127), 0);
-
-            //TODO: See if it works without this.
-            time = numSamples;
+            time = 0;
         }
         // TODO: Simplify comment.
         // Argument is met when it's time to change notes and edit the midi buffer. IF WE ARE JUST ABOUT TO WRAP
