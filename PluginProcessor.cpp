@@ -183,7 +183,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         // TODO: Simplify comment.
         // Argument is met when it's time to change notes and edit the midi buffer. IF WE ARE JUST ABOUT TO WRAP
         // TODO: If conditions turn into functions.
-        if ((time + numSamples) >= noteDuration)
+        if (timeForNoteChange (time, numSamples, noteDuration))
         {
             if (lastNoteValue > 0)
             {
@@ -266,6 +266,11 @@ int AudioPluginAudioProcessor::timeUpdater(int time, int numSamples, int noteDur
 {
     time = (time + numSamples) % noteDuration;
     return time;
+}
+
+bool AudioPluginAudioProcessor::timeForNoteChange (int time, int numSamples, int noteDuration)
+{
+    return (time + numSamples) >= noteDuration;
 }
 
 //==============================================================================

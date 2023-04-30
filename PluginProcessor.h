@@ -58,6 +58,7 @@ private:
     int calculateOffSet(int time, int numSamples, int noteDuration);
     int timeUpdater(int time, int numSamples, int noteDuration);
     bool notesAreHeld (juce::SortedSet<int> notes);
+    bool timeForNoteChange(int time, int numSamples, int noteDuration);
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 
