@@ -164,7 +164,6 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         }
     }
 
-
     auto offset = calculateOffSet(time, numSamples, noteDuration);
 
     // Empty midi buffer to prepare the sorted set -> midi buffer transition.
@@ -173,32 +172,13 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 
     if (notesAreHeld(notes))
     {
-        if (time == -1)
-        {
-            noteChanger(currentNote, notes, lastNoteValue, midiMessages, offset);
-            time = 0;
-        }
-        if (timeForNoteChange (time, numSamples, noteDuration))
-        {
-            if (lastNoteValue > 0)
-            {
-                midiMessages.addEvent (juce::MidiMessage::noteOff (1, lastNoteValue), offset);
-                lastNoteValue = -1;
-            }
-            noteChanger(currentNote, notes, lastNoteValue, midiMessages, offset);
-            time = timeUpdater(time, numSamples, noteDuration);
-        }
-        else if (timeBetweenFirstAndSecondNote (time, numSamples, noteDuration))
-        {
-            time = timeUpdater(time, numSamples, noteDuration);
-        }
+        noteChanger(time, midiMessages, offset, numSamples, noteDuration);
     }
 
-    // TODO: Make to function. Whole block could be a function
     if (notesAreNotHeld(notes))
-        {
-            lastNoteChanger (midiMessages, lastNoteValue, offset, time, currentNote);
-        }
+    {
+        lastNoteOffMessageSender (midiMessages, lastNoteValue, offset, time, currentNote);
+    }
 
     // TODO: TEST IN XCODE
 }
@@ -270,19 +250,42 @@ bool AudioPluginAudioProcessor::timeBetweenFirstAndSecondNote (int time, int num
     return 0 < (time + numSamples) < noteDuration;
 }
 
-void AudioPluginAudioProcessor::noteChanger (int& currentNote, juce::SortedSet<int>& notes, int& lastNoteValue, juce::MidiBuffer& midiMessages, int offset)
+void AudioPluginAudioProcessor::noteOnSenderFromNextNote (int& currentNote, juce::SortedSet<int>& notes, int& lastNoteValue, juce::MidiBuffer& midiMessages, int offset)
 {
     currentNote = (currentNote + 1) % notes.size();
     lastNoteValue = notes[currentNote];
     midiMessages.addEvent (juce::MidiMessage::noteOn (1, lastNoteValue, (juce::uint8) 127), offset);
 }
 
-void AudioPluginAudioProcessor::lastNoteChanger (juce::MidiBuffer& midiMessages, int& lastNoteValue, int offset, int& time, int& currentNote)
+void AudioPluginAudioProcessor::lastNoteOffMessageSender (juce::MidiBuffer& midiMessages, int& lastNoteValue, int offset, int& time, int& currentNote)
 {
     midiMessages.addEvent (juce::MidiMessage::noteOff (1, lastNoteValue), offset);
     lastNoteValue = -1;
     time = -1;
     currentNote = -1;
+}
+
+void AudioPluginAudioProcessor::noteChanger(int& time, juce::MidiBuffer& midiMessages, int offset, int numSamples, int noteDuration)
+{
+    if (time == -1)
+    {
+            noteOnSenderFromNextNote (currentNote, notes, lastNoteValue, midiMessages, offset);
+            time = 0;
+    }
+    if (timeForNoteChange (time, numSamples, noteDuration))
+    {
+            if (lastNoteValue > 0)
+            {
+            midiMessages.addEvent (juce::MidiMessage::noteOff (1, lastNoteValue), offset);
+            lastNoteValue = -1;
+            }
+            noteOnSenderFromNextNote (currentNote, notes, lastNoteValue, midiMessages, offset);
+            time = timeUpdater(time, numSamples, noteDuration);
+    }
+    else if (timeBetweenFirstAndSecondNote (time, numSamples, noteDuration))
+    {
+            time = timeUpdater(time, numSamples, noteDuration);
+    }
 }
 
 //==============================================================================
