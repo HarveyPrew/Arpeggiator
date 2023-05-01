@@ -175,9 +175,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     {
         if (time == -1)
         {
-            currentNote = (currentNote + 1) % notes.size();
-            lastNoteValue = notes[currentNote];
-            midiMessages.addEvent (juce::MidiMessage::noteOn (1, lastNoteValue, (juce::uint8) 127), offset);
+            noteChanger(currentNote, notes, lastNoteValue, midiMessages, offset);
             time = 0;
         }
         // TODO: Simplify comment.
@@ -190,12 +188,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                 midiMessages.addEvent (juce::MidiMessage::noteOff (1, lastNoteValue), offset);
                 lastNoteValue = -1;
             }
-            noteChanger (currentNote, notes, lastNoteValue, midiMessages, offset, time, numSamples, noteDuration);
-            currentNote = (currentNote + 1) % notes.size();
-            lastNoteValue = notes[currentNote];
-            midiMessages.addEvent (juce::MidiMessage::noteOn (1, lastNoteValue, (juce::uint8) 127), offset);
-
-            // Once time + numSamples = noteDuration, time is set back to 0.
+            noteChanger(currentNote, notes, lastNoteValue, midiMessages, offset);
             time = timeUpdater(time, numSamples, noteDuration);
         }
         else if (0 < (time + numSamples) < noteDuration)
@@ -273,12 +266,11 @@ bool AudioPluginAudioProcessor::timeForNoteChange (int time, int numSamples, int
     return (time + numSamples) >= noteDuration;
 }
 
-void AudioPluginAudioProcessor::noteChanger (int currentNote, juce::SortedSet<int> notes, int lastNoteValue, juce::MidiBuffer& midiMessages, int offset, int time, int numSamples, int noteDuration)
+void AudioPluginAudioProcessor::noteChanger (int& currentNote, juce::SortedSet<int>& notes, int& lastNoteValue, juce::MidiBuffer& midiMessages, int offset)
 {
     currentNote = (currentNote + 1) % notes.size();
     lastNoteValue = notes[currentNote];
     midiMessages.addEvent (juce::MidiMessage::noteOn (1, lastNoteValue, (juce::uint8) 127), offset);
-    timeUpdater(time, numSamples, noteDuration);
 }
 
 //==============================================================================
