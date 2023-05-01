@@ -11,7 +11,6 @@ _deps
 **/.DS_Store
 
 # It's nice to have the Builds folder exist, to remind us where it is
-Builds/*
 !Builds/.gitkeep
 
 # This should never exist
