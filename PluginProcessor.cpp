@@ -200,10 +200,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // TODO: Make to function. Whole block could be a function
     if ((notes.size() == 0) && (lastNoteValue != -1))
         {
-            midiMessages.addEvent (juce::MidiMessage::noteOff (1, lastNoteValue), offset);
-            lastNoteValue = -1;
-            time = -1;
-            currentNote = -1;
+            lastNoteChanger (midiMessages, lastNoteValue, offset, time, currentNote);
         }
 
     // TODO: TEST IN XCODE
@@ -271,6 +268,14 @@ void AudioPluginAudioProcessor::noteChanger (int& currentNote, juce::SortedSet<i
     currentNote = (currentNote + 1) % notes.size();
     lastNoteValue = notes[currentNote];
     midiMessages.addEvent (juce::MidiMessage::noteOn (1, lastNoteValue, (juce::uint8) 127), offset);
+}
+
+void AudioPluginAudioProcessor::lastNoteChanger (juce::MidiBuffer& midiMessages, int& lastNoteValue, int offset, int& time, int& currentNote)
+{
+    midiMessages.addEvent (juce::MidiMessage::noteOff (1, lastNoteValue), offset);
+    lastNoteValue = -1;
+    time = -1;
+    currentNote = -1;
 }
 
 //==============================================================================
