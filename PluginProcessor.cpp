@@ -198,7 +198,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     }
 
     // TODO: Make to function. Whole block could be a function
-    if ((notes.size() == 0) && (lastNoteValue != -1))
+    if (notesAreNotHeld(notes))
         {
             lastNoteChanger (midiMessages, lastNoteValue, offset, time, currentNote);
         }
@@ -250,6 +250,11 @@ int AudioPluginAudioProcessor::calculateOffSet(int time, int numSamples, int not
 bool AudioPluginAudioProcessor:: notesAreHeld (juce::SortedSet<int> notes)
 {
     return notes.size() > 0;
+}
+
+bool AudioPluginAudioProcessor:: notesAreNotHeld (juce::SortedSet<int> notes)
+{
+    return ((notes.size() == 0) && (lastNoteValue != -1));
 }
 
 int AudioPluginAudioProcessor::timeUpdater(int time, int numSamples, int noteDuration)
