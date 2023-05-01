@@ -180,7 +180,6 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         lastNoteOffMessageSender (midiMessages, lastNoteValue, offset, time, currentNote);
     }
 
-    // TODO: TEST IN XCODE
 }
 
 //==============================================================================
