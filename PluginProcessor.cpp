@@ -273,7 +273,7 @@ void AudioPluginAudioProcessor::noteOnSenderFromNextNote (int& currentNote, juce
 {
     if (mode == 0)
     {
-        currentNote = (currentNote + 1) % notes.size();
+        moveUpOneInSortedSet();
     }
 
     else if (mode == 1)
@@ -284,7 +284,7 @@ void AudioPluginAudioProcessor::noteOnSenderFromNextNote (int& currentNote, juce
     else if (mode == 2)
     {
         if (counter == 0){
-            currentNote = (currentNote + 1) % notes.size();
+            moveUpOneInSortedSet();
         }
 
         if (counter == 1){
@@ -366,6 +366,11 @@ void AudioPluginAudioProcessor::upDownNoteChanger(int numSamples, int noteDurati
                 downNoteChanger (time, midiMessages, offset, numSamples, noteDuration, mode);
             }
     }
+}
+
+void AudioPluginAudioProcessor::moveUpOneInSortedSet()
+{
+    currentNote = (currentNote + 1) % notes.size();
 }
 
 //==============================================================================
