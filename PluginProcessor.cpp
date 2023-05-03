@@ -188,9 +188,13 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                 currentNote = (currentNote - 1 + notes.size()) % notes.size();
                 lastNoteValue = notes[currentNote];
                 midiMessages.addEvent (juce::MidiMessage::noteOn  (1, lastNoteValue, (juce::uint8) 127), offset);
-                time = timeUpdater(time, numSamples, noteDuration);
             }
         }
+    }
+
+    if (notesAreNotHeld(notes))
+    {
+        lastNoteOffMessageSender (midiMessages, lastNoteValue, offset, time, currentNote);
     }
 
     time = timeUpdater(time, numSamples, noteDuration);
