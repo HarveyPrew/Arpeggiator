@@ -100,6 +100,7 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int)
 
     // Converting double to a float.
     rate = static_cast<float> (sampleRate);
+    counter = 0;
 }
 
 void AudioPluginAudioProcessor::releaseResources()
@@ -179,6 +180,41 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         if (mode == 1)
         {
             downNoteChanger (time, midiMessages, offset, numSamples, noteDuration, mode);
+        }
+
+        if (mode == 2)
+        {
+            if (currentNote == 0)
+            {
+                counter = 0;
+            }
+
+//            if (currentNote == (notes.size() - 1))
+//            {
+//                counter = 1;
+//            }
+
+            if (counter == 0)
+            {
+                if (timeForNoteChange (time, numSamples, noteDuration))
+                {
+                    insertNoteOffMessage(midiMessages, offset);
+                    currentNote = (currentNote + 1) % notes.size();
+                    lastNoteValue = notes[currentNote];
+                    midiMessages.addEvent (juce::MidiMessage::noteOn (1, lastNoteValue, (juce::uint8) 127), offset);
+                }
+            }
+
+//            if (counter = 1)
+//            {
+//                if (timeForNoteChange (time, numSamples, noteDuration))
+//                {
+//                    insertNoteOffMessage(midiMessages, offset);
+//                    currentNote = (currentNote - 1 + notes.size()) % notes.size();
+//                    lastNoteValue = notes[currentNote];
+//                    midiMessages.addEvent (juce::MidiMessage::noteOn (1, lastNoteValue, (juce::uint8) 127), offset);
+//                }
+//            }
         }
     }
 
@@ -275,6 +311,17 @@ void AudioPluginAudioProcessor::noteOnSenderFromNextNote (int& currentNote, juce
     else if (mode == 1)
     {
         currentNote = (currentNote - 1 + notes.size()) % notes.size();
+    }
+
+    else if (mode == 2)
+    {
+        if (counter == 0){
+            currentNote = (currentNote + 1) % notes.size();
+        }
+
+        if (counter == 1){
+            currentNote = (currentNote - 1 + notes.size()) % notes.size();
+        }
     }
     lastNoteValue = notes[currentNote];
     midiMessages.addEvent (juce::MidiMessage::noteOn (1, lastNoteValue, (juce::uint8) 127), offset);

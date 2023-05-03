@@ -54,6 +54,7 @@ private:
     int time;
     float rate;
     juce::SortedSet<int> notes;
+    int counter;
     float pointerToFloat (juce::String parameterID);
     int calculateOffSet(int time, int numSamples, int noteDuration);
     int timeUpdater(int time, int numSamples, int noteDuration);
