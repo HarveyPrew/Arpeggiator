@@ -60,10 +60,10 @@ void AudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 void AudioPluginAudioProcessorEditor::resized()
 {
     // Position and Size of the slider with arguments (x, y, width, height)
-    tempo.setBounds (0, 160, 180, 180);
+    tempo.setBounds (0, 0, 180, 180);
 
-    mode.setBounds(290, 160, 80, 50);
+    mode.setBounds(300, 20, 80, 50);
 
-    quaver.setBounds(390, 160, 80, 50);
+    quaver.setBounds(300, 160, 80, 50);
 }
 
