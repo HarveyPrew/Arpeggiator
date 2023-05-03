@@ -185,9 +185,19 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                     midiMessages.addEvent (juce::MidiMessage::noteOff (1, lastNoteValue), offset);
                     lastNoteValue = -1;
                 }
-                currentNote = (currentNote - 1 + notes.size()) % notes.size();
-                lastNoteValue = notes[currentNote];
-                midiMessages.addEvent (juce::MidiMessage::noteOn  (1, lastNoteValue, (juce::uint8) 127), offset);
+                if (currentNote == -1)
+                {
+                    currentNote = notes.size() - 1;
+                    lastNoteValue = notes[currentNote];
+                    midiMessages.addEvent (juce::MidiMessage::noteOn  (1, lastNoteValue, (juce::uint8) 127), offset);
+                }
+                else
+                {
+                    currentNote = (currentNote - 1 + notes.size()) % notes.size();
+                    lastNoteValue = notes[currentNote];
+                    midiMessages.addEvent (juce::MidiMessage::noteOn  (1, lastNoteValue, (juce::uint8) 127), offset);
+                }
+
             }
         }
     }
