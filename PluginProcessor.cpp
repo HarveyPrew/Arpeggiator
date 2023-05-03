@@ -189,10 +189,10 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                 counter = 0;
             }
 
-//            if (currentNote == (notes.size() - 1))
-//            {
-//                counter = 1;
-//            }
+            if (currentNote == (notes.size() - 1))
+            {
+                counter = 1;
+            }
 
             if (counter == 0)
             {
@@ -205,16 +205,16 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
                 }
             }
 
-//            if (counter = 1)
-//            {
-//                if (timeForNoteChange (time, numSamples, noteDuration))
-//                {
-//                    insertNoteOffMessage(midiMessages, offset);
-//                    currentNote = (currentNote - 1 + notes.size()) % notes.size();
-//                    lastNoteValue = notes[currentNote];
-//                    midiMessages.addEvent (juce::MidiMessage::noteOn (1, lastNoteValue, (juce::uint8) 127), offset);
-//                }
-//            }
+            if (counter == 1)
+            {
+                if (timeForNoteChange (time, numSamples, noteDuration))
+                {
+                    insertNoteOffMessage(midiMessages, offset);
+                    currentNote = (currentNote - 1 + notes.size()) % notes.size();
+                    lastNoteValue = notes[currentNote];
+                    midiMessages.addEvent (juce::MidiMessage::noteOn (1, lastNoteValue, (juce::uint8) 127), offset);
+                }
+            }
         }
     }
 
@@ -384,8 +384,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
     // Storing parameters as a vector
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
 
-    params.push_back(std::make_unique<juce::AudioParameterInt>("BPM", "Bpm", 20, 200, 120));
-    params.push_back(std::make_unique<juce::AudioParameterChoice>("MODE", "Mode", juce::StringArray{"Up", "Down", "Up-Down"}, 0));
+    params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID{"BPM", 1}, "Bpm", 20, 200, 120));
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"MODE", 1}, "Mode", juce::StringArray{"Up", "Down", "Up-Down"}, 0));
 
     return{ params.begin(), params.end() };
 }
