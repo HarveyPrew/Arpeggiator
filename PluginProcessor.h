@@ -61,9 +61,11 @@ private:
     bool notesAreNotHeld(juce::SortedSet<int> notes);
     bool timeForNoteChange(int time, int numSamples, int noteDuration);
     bool timeBetweenFirstAndSecondNote (int time, int numSamples, int noteDuration);
-    void noteOnSenderFromNextNote (int& currentNote, juce::SortedSet<int>& notes, int& lastNoteValue, juce::MidiBuffer& midiMessages, int offset);
+    void noteOnSenderFromNextNote (int& currentNote, juce::SortedSet<int>& notes, int& lastNoteValue, juce::MidiBuffer& midiMessages, int offset,int mode);
     void lastNoteOffMessageSender (juce::MidiBuffer& midiMessages,int& lastNoteValue, int offset, int& time, int& currentNote);
-    void noteChanger(int& time, juce::MidiBuffer& midiMessages, int offset, int numSamples, int noteDuration);
+    void upNoteChanger (int& time, juce::MidiBuffer& midiMessages, int offset, int numSamples, int noteDuration, int mode);
+    void downNoteChanger (int& time, juce::MidiBuffer& midiMessages, int offset, int numSamples, int noteDuration, int mode);
+    void insertNoteOffMessage(juce::MidiBuffer& midiMessages, int offset);
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 

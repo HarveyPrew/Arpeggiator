@@ -173,32 +173,12 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     {
         if (mode == 0)
         {
-            noteChanger(time, midiMessages, offset, numSamples, noteDuration);
+            upNoteChanger (time, midiMessages, offset, numSamples, noteDuration, mode);
         }
 
         if (mode == 1)
         {
-            if (timeForNoteChange (time, numSamples, noteDuration))
-            {
-                if (lastNoteValue > 0)
-                {
-                    midiMessages.addEvent (juce::MidiMessage::noteOff (1, lastNoteValue), offset);
-                    lastNoteValue = -1;
-                }
-                if (currentNote == -1)
-                {
-                    currentNote = notes.size() - 1;
-                    lastNoteValue = notes[currentNote];
-                    midiMessages.addEvent (juce::MidiMessage::noteOn  (1, lastNoteValue, (juce::uint8) 127), offset);
-                }
-                else
-                {
-                    currentNote = (currentNote - 1 + notes.size()) % notes.size();
-                    lastNoteValue = notes[currentNote];
-                    midiMessages.addEvent (juce::MidiMessage::noteOn  (1, lastNoteValue, (juce::uint8) 127), offset);
-                }
-
-            }
+            downNoteChanger (time, midiMessages, offset, numSamples, noteDuration, mode);
         }
     }
 
@@ -285,9 +265,17 @@ void AudioPluginAudioProcessor::lastNoteOffMessageSender (juce::MidiBuffer& midi
     currentNote = -1;
 }
 
-void AudioPluginAudioProcessor::noteOnSenderFromNextNote (int& currentNote, juce::SortedSet<int>& notes, int& lastNoteValue, juce::MidiBuffer& midiMessages, int offset)
+void AudioPluginAudioProcessor::noteOnSenderFromNextNote (int& currentNote, juce::SortedSet<int>& notes, int& lastNoteValue, juce::MidiBuffer& midiMessages, int offset, int mode)
 {
-    currentNote = (currentNote + 1) % notes.size();
+    if (mode == 0)
+    {
+        currentNote = (currentNote + 1) % notes.size();
+    }
+
+    else if (mode == 1)
+    {
+        currentNote = (currentNote - 1 + notes.size()) % notes.size();
+    }
     lastNoteValue = notes[currentNote];
     midiMessages.addEvent (juce::MidiMessage::noteOn (1, lastNoteValue, (juce::uint8) 127), offset);
 }
@@ -297,16 +285,42 @@ bool AudioPluginAudioProcessor::timeForNoteChange (int time, int numSamples, int
     return (time + numSamples) >= noteDuration;
 }
 
-void AudioPluginAudioProcessor::noteChanger(int& time, juce::MidiBuffer& midiMessages, int offset, int numSamples, int noteDuration)
+void AudioPluginAudioProcessor::upNoteChanger (int& time, juce::MidiBuffer& midiMessages, int offset, int numSamples, int noteDuration, int mode)
 {
     if (timeForNoteChange (time, numSamples, noteDuration))
     {
-            if (lastNoteValue > 0)
+        insertNoteOffMessage(midiMessages, offset);
+
+        noteOnSenderFromNextNote (currentNote, notes, lastNoteValue, midiMessages, offset, mode);
+    }
+}
+
+void AudioPluginAudioProcessor::downNoteChanger (int& time, juce::MidiBuffer& midiMessages, int offset, int numSamples, int noteDuration, int mode)
+{
+    if (timeForNoteChange (time, numSamples, noteDuration))
+    {
+            insertNoteOffMessage(midiMessages, offset);
+
+            // First note of down note changer
+            if (currentNote == -1)
             {
+                currentNote = notes.size() - 1;
+                lastNoteValue = notes[currentNote];
+                midiMessages.addEvent (juce::MidiMessage::noteOn  (1, lastNoteValue, (juce::uint8) 127), offset);
+            }
+            else
+            {
+                noteOnSenderFromNextNote (currentNote, notes, lastNoteValue, midiMessages, offset, mode);
+            }
+    }
+}
+
+void AudioPluginAudioProcessor::insertNoteOffMessage(juce::MidiBuffer& midiMessages, int offset)
+{
+    if (lastNoteValue > 0)
+    {
             midiMessages.addEvent (juce::MidiMessage::noteOff (1, lastNoteValue), offset);
             lastNoteValue = -1;
-            }
-            noteOnSenderFromNextNote (currentNote, notes, lastNoteValue, midiMessages, offset);
     }
 }
 
