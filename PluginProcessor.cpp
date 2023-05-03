@@ -267,6 +267,7 @@ void AudioPluginAudioProcessor::lastNoteOffMessageSender (juce::MidiBuffer& midi
     lastNoteValue = -1;
     time = -1;
     currentNote = -1;
+    //counter = 0;
 }
 
 void AudioPluginAudioProcessor::noteOnSenderFromNextNote (int& currentNote, juce::SortedSet<int>& notes, int& lastNoteValue, juce::MidiBuffer& midiMessages, int offset, int mode)
@@ -288,7 +289,7 @@ void AudioPluginAudioProcessor::noteOnSenderFromNextNote (int& currentNote, juce
         }
 
         if (counter == 1){
-            currentNote = (currentNote - 1 + notes.size()) % notes.size();
+            moveDownOneInSortedSet();
         }
     }
     lastNoteValue = notes[currentNote];
@@ -341,7 +342,7 @@ void AudioPluginAudioProcessor::insertNoteOffMessage(juce::MidiBuffer& midiMessa
 
 void AudioPluginAudioProcessor::upDownNoteChanger(int numSamples, int noteDuration, juce::MidiBuffer& midiMessages, int offset, int mode)
 {
-    if (currentNote == 0)
+    if (currentNote <= 0)
     {
             counter = 0;
     }
