@@ -15,9 +15,11 @@ public:
 private:
     juce::Slider tempo;
     juce::ComboBox mode;
+    juce::ToggleButton quaver;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> tempoSliderAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> modeAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> quaverAttachment;
     AudioPluginAudioProcessor& processorRef;
 
 

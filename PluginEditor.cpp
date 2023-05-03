@@ -20,12 +20,19 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor (AudioPluginAud
 
     tempoSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, "BPM", tempo);
 
+    // ----------------------------------- Mode -----------------------------------
     addAndMakeVisible (mode);
     mode.addItem("Up", 1);
     mode.addItem("Down", 2);
     mode.addItem("Up-Down", 3);
     mode.setJustificationType(juce::Justification::centred);
     modeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(processorRef.apvts, "MODE", mode);
+
+    // ----------------------------------- Quaver -----------------------------------
+    addAndMakeVisible(quaver);
+    quaver.setToggleable(true);
+    quaverAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(processorRef.apvts, "QUAV", quaver);
+
 
     setSize (400, 400); // Pixel Dimensions of plugin (400x400 pixels)
 
@@ -56,5 +63,7 @@ void AudioPluginAudioProcessorEditor::resized()
     tempo.setBounds (0, 160, 180, 180);
 
     mode.setBounds(290, 160, 80, 50);
+
+    quaver.setBounds(390, 160, 80, 50);
 }
 

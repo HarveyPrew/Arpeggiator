@@ -394,6 +394,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
 
     params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID{"BPM", 1}, "Bpm", 20, 200, 120));
     params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID{"MODE", 1}, "Mode", juce::StringArray{"Up", "Down", "Up-Down"}, 0));
+    params.push_back(std::make_unique<juce::AudioParameterBool>(juce::ParameterID{"QUAV", 1}, "Quaver Mode", 0));
 
     return{ params.begin(), params.end() };
 }
