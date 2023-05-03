@@ -184,31 +184,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 
         if (mode == 2)
         {
-            if (currentNote == 0)
-            {
-                counter = 0;
-            }
-
-            if (currentNote == (notes.size() - 1))
-            {
-                counter = 1;
-            }
-
-            if (counter == 0)
-            {
-                if (timeForNoteChange (time, numSamples, noteDuration))
-                {
-                    upNoteChanger (time, midiMessages, offset, numSamples, noteDuration, mode);
-                }
-            }
-
-            if (counter == 1)
-            {
-                if (timeForNoteChange (time, numSamples, noteDuration))
-                {
-                    downNoteChanger (time, midiMessages, offset, numSamples, noteDuration, mode);
-                }
-            }
+            upDownNoteChanger(numSamples, noteDuration, midiMessages, offset, mode);
         }
     }
 
@@ -277,8 +253,6 @@ int AudioPluginAudioProcessor::timeUpdater(int time, int numSamples, int noteDur
     time = (time + numSamples) % noteDuration;
     return time;
 }
-
-
 
 bool AudioPluginAudioProcessor::timeBetweenFirstAndSecondNote (int time, int numSamples, int noteDuration)
 {
@@ -362,6 +336,35 @@ void AudioPluginAudioProcessor::insertNoteOffMessage(juce::MidiBuffer& midiMessa
     {
             midiMessages.addEvent (juce::MidiMessage::noteOff (1, lastNoteValue), offset);
             lastNoteValue = -1;
+    }
+}
+
+void AudioPluginAudioProcessor::upDownNoteChanger(int numSamples, int noteDuration, juce::MidiBuffer& midiMessages, int offset, int mode)
+{
+    if (currentNote == 0)
+    {
+            counter = 0;
+    }
+
+    if (currentNote == (notes.size() - 1))
+    {
+            counter = 1;
+    }
+
+    if (counter == 0)
+    {
+            if (timeForNoteChange (time, numSamples, noteDuration))
+            {
+                upNoteChanger (time, midiMessages, offset, numSamples, noteDuration, mode);
+            }
+    }
+
+    if (counter == 1)
+    {
+            if (timeForNoteChange (time, numSamples, noteDuration))
+            {
+                downNoteChanger (time, midiMessages, offset, numSamples, noteDuration, mode);
+            }
     }
 }
 

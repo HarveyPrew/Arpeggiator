@@ -66,6 +66,7 @@ private:
     void lastNoteOffMessageSender (juce::MidiBuffer& midiMessages,int& lastNoteValue, int offset, int& time, int& currentNote);
     void upNoteChanger (int& time, juce::MidiBuffer& midiMessages, int offset, int numSamples, int noteDuration, int mode);
     void downNoteChanger (int& time, juce::MidiBuffer& midiMessages, int offset, int numSamples, int noteDuration, int mode);
+    void upDownNoteChanger(int numSamples, int noteDuration, juce::MidiBuffer& midiMessages, int offset, int mode);
     void insertNoteOffMessage(juce::MidiBuffer& midiMessages, int offset);
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
