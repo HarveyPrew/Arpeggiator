@@ -198,10 +198,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
             {
                 if (timeForNoteChange (time, numSamples, noteDuration))
                 {
-                    insertNoteOffMessage(midiMessages, offset);
-                    currentNote = (currentNote + 1) % notes.size();
-                    lastNoteValue = notes[currentNote];
-                    midiMessages.addEvent (juce::MidiMessage::noteOn (1, lastNoteValue, (juce::uint8) 127), offset);
+                    upNoteChanger (time, midiMessages, offset, numSamples, noteDuration, mode);
                 }
             }
 
@@ -209,10 +206,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
             {
                 if (timeForNoteChange (time, numSamples, noteDuration))
                 {
-                    insertNoteOffMessage(midiMessages, offset);
-                    currentNote = (currentNote - 1 + notes.size()) % notes.size();
-                    lastNoteValue = notes[currentNote];
-                    midiMessages.addEvent (juce::MidiMessage::noteOn (1, lastNoteValue, (juce::uint8) 127), offset);
+                    downNoteChanger (time, midiMessages, offset, numSamples, noteDuration, mode);
                 }
             }
         }
