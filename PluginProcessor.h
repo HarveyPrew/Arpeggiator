@@ -69,7 +69,7 @@ private:
     void upDownNoteChanger(int numSamples, int noteDuration, juce::MidiBuffer& midiMessages, int offset, int mode);
     void insertNoteOffMessage(juce::MidiBuffer& midiMessages, int offset);
     void moveUpOneInSortedSet();
-    void downNoteEquation();
+    void moveDownOneInSortedSet();
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
 

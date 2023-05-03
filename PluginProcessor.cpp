@@ -278,7 +278,7 @@ void AudioPluginAudioProcessor::noteOnSenderFromNextNote (int& currentNote, juce
 
     else if (mode == 1)
     {
-        currentNote = (currentNote - 1 + notes.size()) % notes.size();
+        moveDownOneInSortedSet();
     }
 
     else if (mode == 2)
@@ -371,6 +371,11 @@ void AudioPluginAudioProcessor::upDownNoteChanger(int numSamples, int noteDurati
 void AudioPluginAudioProcessor::moveUpOneInSortedSet()
 {
     currentNote = (currentNote + 1) % notes.size();
+}
+
+void AudioPluginAudioProcessor::moveDownOneInSortedSet()
+{
+    currentNote = (currentNote - 1 + notes.size()) % notes.size();
 }
 
 //==============================================================================
