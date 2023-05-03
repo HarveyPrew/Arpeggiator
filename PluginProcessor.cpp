@@ -96,7 +96,7 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int)
     lastNoteValue = -1;
 
     // Time used to keep track of note duration with respect to buffer size and sample rate.
-    time = -1;
+    time = 0;
 
     // Converting double to a float.
     rate = static_cast<float> (sampleRate);
@@ -169,48 +169,27 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // Empty midi buffer to prepare the sorted set -> midi buffer transition.
     midiMessages.clear();
 
-
-    if (notesAreHeld(notes))
+    if (mode == 0)
     {
-        if (mode == 0)
-        {
-            noteChanger(time, midiMessages, offset, numSamples, noteDuration);
-        }
-
-        if (mode == 1)
-        {
-            if (time == -1)
-            {
-                currentNote = (currentNote - 1 + notes.size()) % notes.size();
-                lastNoteValue = notes[currentNote];
-                midiMessages.addEvent (juce::MidiMessage::noteOn  (1, lastNoteValue, (juce::uint8) 127), offset);
-                time = 0;
-            }
-
-            if (timeForNoteChange (time, numSamples, noteDuration))
-            {
-                if (lastNoteValue > 0)
-                {
-                    midiMessages.addEvent (juce::MidiMessage::noteOff (1, lastNoteValue), offset);
-                    lastNoteValue = -1;
-                }
-                currentNote = (currentNote - 1 + notes.size()) % notes.size();
-                lastNoteValue = notes[currentNote];
-                midiMessages.addEvent (juce::MidiMessage::noteOn  (1, lastNoteValue, (juce::uint8) 127), offset);
-                time = timeUpdater(time, numSamples, noteDuration);
-            }
-            else if (timeBetweenFirstAndSecondNote (time, numSamples, noteDuration))
-            {
-                time = timeUpdater(time, numSamples, noteDuration);
-            }
-        }
-
+        noteChanger(time, midiMessages, offset, numSamples, noteDuration);
     }
 
-    if (notesAreNotHeld(notes))
+    if (mode == 1)
     {
-        lastNoteOffMessageSender (midiMessages, lastNoteValue, offset, time, currentNote);
+        if (timeForNoteChange (time, numSamples, noteDuration))
+        {
+            if (lastNoteValue > 0)
+            {
+                midiMessages.addEvent (juce::MidiMessage::noteOff (1, lastNoteValue), offset);
+                lastNoteValue = -1;
+            }
+            currentNote = (currentNote - 1 + notes.size()) % notes.size();
+            lastNoteValue = notes[currentNote];
+            midiMessages.addEvent (juce::MidiMessage::noteOn  (1, lastNoteValue, (juce::uint8) 127), offset);
+            time = timeUpdater(time, numSamples, noteDuration);
+        }
     }
+
 
 }
 
@@ -271,10 +250,7 @@ int AudioPluginAudioProcessor::timeUpdater(int time, int numSamples, int noteDur
     return time;
 }
 
-bool AudioPluginAudioProcessor::timeForNoteChange (int time, int numSamples, int noteDuration)
-{
-    return (time + numSamples) >= noteDuration;
-}
+
 
 bool AudioPluginAudioProcessor::timeBetweenFirstAndSecondNote (int time, int numSamples, int noteDuration)
 {
@@ -296,13 +272,13 @@ void AudioPluginAudioProcessor::lastNoteOffMessageSender (juce::MidiBuffer& midi
     currentNote = -1;
 }
 
+bool AudioPluginAudioProcessor::timeForNoteChange (int time, int numSamples, int noteDuration)
+{
+    return (time + numSamples) >= noteDuration;
+}
+
 void AudioPluginAudioProcessor::noteChanger(int& time, juce::MidiBuffer& midiMessages, int offset, int numSamples, int noteDuration)
 {
-    if (time == -1)
-    {
-            noteOnSenderFromNextNote (currentNote, notes, lastNoteValue, midiMessages, offset);
-            time = 0;
-    }
     if (timeForNoteChange (time, numSamples, noteDuration))
     {
             if (lastNoteValue > 0)
@@ -311,10 +287,6 @@ void AudioPluginAudioProcessor::noteChanger(int& time, juce::MidiBuffer& midiMes
             lastNoteValue = -1;
             }
             noteOnSenderFromNextNote (currentNote, notes, lastNoteValue, midiMessages, offset);
-            time = timeUpdater(time, numSamples, noteDuration);
-    }
-    else if (timeBetweenFirstAndSecondNote (time, numSamples, noteDuration))
-    {
             time = timeUpdater(time, numSamples, noteDuration);
     }
 }
