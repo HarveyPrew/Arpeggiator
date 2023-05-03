@@ -146,8 +146,11 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 
     auto mode = pointerToFloat("MODE");
 
+    auto quaver = static_cast<int> (pointerToFloat("QUAV"));
+
+
     // Converting from float to int
-    auto noteDuration = static_cast<int> (std::ceil (rate/(tempo/60)));
+    auto noteDuration = static_cast<int> (std::ceil (rate/((tempo * (quaver + 1))/60)));
 
     // Iterate through each midi message metadata in the midiMessages buffer
     for (const auto metadata : midiMessages)
