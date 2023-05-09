@@ -142,10 +142,9 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // however we use the buffer to get timing information
     auto numSamples = buffer.getNumSamples();
 
+    // Calling parameter values tempo, quaver and tempo.
     auto tempo = getParameterValue ("BPM");
-
     auto mode = getParameterValue ("MODE");
-
     auto quaver = static_cast<int> (getParameterValue ("QUAV"));
 
 
@@ -175,16 +174,19 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 
     if (notesAreHeld(notes))
     {
+        // Up Mode
         if (mode == 0)
         {
             upNoteChanger (time, midiMessages, offset, numSamples, noteDuration, mode);
         }
 
+        // Down Mode
         if (mode == 1)
         {
             downNoteChanger (time, midiMessages, offset, numSamples, noteDuration, mode);
         }
 
+        // Up-Down Mode
         if (mode == 2)
         {
             upDownNoteChanger(numSamples, noteDuration, midiMessages, offset, mode);
@@ -264,21 +266,23 @@ void AudioPluginAudioProcessor::lastNoteOffMessageSender (juce::MidiBuffer& midi
     lastNoteValue = -1;
     time = 0;
     currentNote = -1;
-    //upDownSwitch = 0;
 }
 
 void AudioPluginAudioProcessor::noteOnSenderFromNextNote (int& currentNote, juce::SortedSet<int>& notes, int& lastNoteValue, juce::MidiBuffer& midiMessages, int offset, int mode)
 {
+    // Up Mode
     if (mode == 0)
     {
         moveUpOneInSortedSet();
     }
 
+    // Down Mode
     else if (mode == 1)
     {
         moveDownOneInSortedSet();
     }
 
+    // Up-Down Mode
     else if (mode == 2)
     {
         if (upDownSwitch == 0){
@@ -289,6 +293,8 @@ void AudioPluginAudioProcessor::noteOnSenderFromNextNote (int& currentNote, juce
             moveDownOneInSortedSet();
         }
     }
+
+    // Setting to new note in sorted set then sending note on message.
     lastNoteValue = notes[currentNote];
     midiMessages.addEvent (juce::MidiMessage::noteOn (1, lastNoteValue, (juce::uint8) 127), offset);
 }
@@ -302,8 +308,10 @@ void AudioPluginAudioProcessor::upNoteChanger (int& time, juce::MidiBuffer& midi
 {
     if (timeForNoteChange (time, numSamples, noteDuration))
     {
+        // Insert note off message from note before
         insertNoteOffMessage(midiMessages, offset);
 
+        // Send next note message
         noteOnSenderFromNextNote (currentNote, notes, lastNoteValue, midiMessages, offset, mode);
     }
 }
@@ -317,6 +325,7 @@ void AudioPluginAudioProcessor::downNoteChanger (int& time, juce::MidiBuffer& mi
             // First note of down note changer
             if (currentNote == -1)
             {
+                // First note is the highest in sorted set. -1 because first element is 0.
                 currentNote = notes.size() - 1;
                 lastNoteValue = notes[currentNote];
                 midiMessages.addEvent (juce::MidiMessage::noteOn  (1, lastNoteValue, (juce::uint8) 127), offset);
@@ -339,11 +348,13 @@ void AudioPluginAudioProcessor::insertNoteOffMessage(juce::MidiBuffer& midiMessa
 
 void AudioPluginAudioProcessor::upDownNoteChanger(int numSamples, int noteDuration, juce::MidiBuffer& midiMessages, int offset, int mode)
 {
+    // If current note is either 0 (Lowest Note) or less than 0 (-1 before first note is hit) then upNoteChanger is used.
     if (currentNote <= 0)
     {
             upDownSwitch = 0;
     }
 
+    // If current note is higest in sorted set, then downNoteChanger is used.
     if (currentNote == (notes.size() - 1))
     {
             upDownSwitch = 1;
@@ -368,11 +379,13 @@ void AudioPluginAudioProcessor::upDownNoteChanger(int numSamples, int noteDurati
 
 void AudioPluginAudioProcessor::moveUpOneInSortedSet()
 {
+    // Equation to go up one element in sorted set then wrap back to the start
     currentNote = (currentNote + 1) % notes.size();
 }
 
 void AudioPluginAudioProcessor::moveDownOneInSortedSet()
 {
+    // Equation to go down one element in sorted set then wrap back to the top
     currentNote = (currentNote - 1 + notes.size()) % notes.size();
 }
 
