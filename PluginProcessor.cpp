@@ -9,7 +9,8 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       ), apvts(*this, nullptr, "Parameters", createParameters())
+                       ),
+      treeState (*this, nullptr, "Parameters", createParameters())
 {
 }
 
@@ -99,7 +100,7 @@ void AudioPluginAudioProcessor::prepareToPlay (double sampleRate, int)
 
     // Converting double to a float.
     rate = static_cast<float> (sampleRate);
-    counter = 0;
+    upDownSwitch = 0;
 }
 
 void AudioPluginAudioProcessor::releaseResources()
@@ -141,11 +142,11 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // however we use the buffer to get timing information
     auto numSamples = buffer.getNumSamples();
 
-    auto tempo = pointerToFloat("BPM");
+    auto tempo = getParameterValue ("BPM");
 
-    auto mode = pointerToFloat("MODE");
+    auto mode = getParameterValue ("MODE");
 
-    auto quaver = static_cast<int> (pointerToFloat("QUAV"));
+    auto quaver = static_cast<int> (getParameterValue ("QUAV"));
 
 
     // Converting from float to int
@@ -172,7 +173,7 @@ void AudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // Empty midi buffer to prepare the sorted set -> midi buffer transition.
     midiMessages.clear();
 
-    if (notes.size() > 0)
+    if (notesAreHeld(notes))
     {
         if (mode == 0)
         {
@@ -227,9 +228,9 @@ void AudioPluginAudioProcessor::setStateInformation (const void* data, int sizeI
     juce::ignoreUnused (data, sizeInBytes);
 }
 
-float AudioPluginAudioProcessor::pointerToFloat(juce::String parameterID)
+float AudioPluginAudioProcessor::getParameterValue (juce::String parameterID)
 {
-    auto atomicFloat =apvts.getRawParameterValue(parameterID);
+    auto atomicFloat = treeState.getRawParameterValue(parameterID);
     auto floatValue = atomicFloat -> load();
     return floatValue;
 }
@@ -257,20 +258,13 @@ int AudioPluginAudioProcessor::timeUpdater(int time, int numSamples, int noteDur
     return time;
 }
 
-bool AudioPluginAudioProcessor::timeBetweenFirstAndSecondNote (int time, int numSamples, int noteDuration)
-{
-    return 0 < (time + numSamples) < noteDuration;
-}
-
-
-
 void AudioPluginAudioProcessor::lastNoteOffMessageSender (juce::MidiBuffer& midiMessages, int& lastNoteValue, int offset, int& time, int& currentNote)
 {
     midiMessages.addEvent (juce::MidiMessage::noteOff (1, lastNoteValue), offset);
     lastNoteValue = -1;
     time = 0;
     currentNote = -1;
-    //counter = 0;
+    //upDownSwitch = 0;
 }
 
 void AudioPluginAudioProcessor::noteOnSenderFromNextNote (int& currentNote, juce::SortedSet<int>& notes, int& lastNoteValue, juce::MidiBuffer& midiMessages, int offset, int mode)
@@ -287,11 +281,11 @@ void AudioPluginAudioProcessor::noteOnSenderFromNextNote (int& currentNote, juce
 
     else if (mode == 2)
     {
-        if (counter == 0){
+        if (upDownSwitch == 0){
             moveUpOneInSortedSet();
         }
 
-        if (counter == 1){
+        if (upDownSwitch == 1){
             moveDownOneInSortedSet();
         }
     }
@@ -347,15 +341,15 @@ void AudioPluginAudioProcessor::upDownNoteChanger(int numSamples, int noteDurati
 {
     if (currentNote <= 0)
     {
-            counter = 0;
+            upDownSwitch = 0;
     }
 
     if (currentNote == (notes.size() - 1))
     {
-            counter = 1;
+            upDownSwitch = 1;
     }
 
-    if (counter == 0)
+    if (upDownSwitch == 0)
     {
             if (timeForNoteChange (time, numSamples, noteDuration))
             {
@@ -363,7 +357,7 @@ void AudioPluginAudioProcessor::upDownNoteChanger(int numSamples, int noteDurati
             }
     }
 
-    if (counter == 1)
+    if (upDownSwitch == 1)
     {
             if (timeForNoteChange (time, numSamples, noteDuration))
             {
