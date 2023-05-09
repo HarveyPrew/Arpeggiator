@@ -1,5 +1,4 @@
 #include "PluginProcessor.h"
-#include "PluginEditor.h"
 
 //==============================================================================
 AudioPluginAudioProcessor::AudioPluginAudioProcessor()
@@ -206,9 +205,10 @@ bool AudioPluginAudioProcessor::hasEditor() const
     return true; // (change this to false if you choose to not supply an editor)
 }
 
+// Using generic audio processor to generate GUI.
 juce::AudioProcessorEditor* AudioPluginAudioProcessor::createEditor()
 {
-    return new AudioPluginAudioProcessorEditor (*this);
+    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
@@ -268,7 +268,7 @@ void AudioPluginAudioProcessor::lastNoteOffMessageSender (juce::MidiBuffer& midi
 {
     midiMessages.addEvent (juce::MidiMessage::noteOff (1, lastNoteValue), offset);
     lastNoteValue = -1;
-    time = -1;
+    time = 0;
     currentNote = -1;
     //counter = 0;
 }

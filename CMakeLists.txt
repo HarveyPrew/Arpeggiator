@@ -69,7 +69,6 @@ juce_add_plugin(Arpeggiator
 
 target_sources(Arpeggiator
         PRIVATE
-        PluginEditor.cpp
         PluginProcessor.cpp)
 
 # `target_compile_definitions` adds some preprocessor definitions to our target. In a Projucer
