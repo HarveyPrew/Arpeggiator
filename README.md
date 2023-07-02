@@ -1,2 +1,2 @@
 # Arpeggiator
-A Midi Arpeggiator developed with JUCE.
+A MIDI Arpeggiator developed with JUCE.
